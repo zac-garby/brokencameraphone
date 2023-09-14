@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<nav>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/logout">Log Out</a></li>
+    </ul>
+</nav>
+<div class="split">
+    <div>
+        <p>
+            Welcome to <strong>Broken Cameraphone</strong>! The game which is totally not a copy of <a href="https://www.brokenpicturephone.com">broken picturephone</a>.
+        </p>
+        <p>
+
+        </p>
+    </div>
+    <div>
+        <form action="/new-game" method="get">
+            <h2>New Game</h2>
+            <p>
+                Make a new game to play with your friends.
+            </p>
+            <input type="submit" value="Create Lobby">
+        </form>
+        <form action="/game" method="post">
+            <h2>Join Game</h2>
+            <p>
+                Join an existing game using a friend's join code.
+            </p>
+            <input type="text" name="join-code" id="join-code" placeholder="Join Code">
+            <input type="submit" value="Join Game">
+        </form>
+    </div>
+</div>
+{% endblock %}

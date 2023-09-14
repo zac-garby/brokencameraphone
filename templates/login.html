@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<p>
+    Welcome to Broken Cameraphone! Log in below if you already have an account, or register a new account.
+</p>
+<div class="split">
+    <div>
+        <form action="/login" method="post">
+            <h2>Login</h2>
+            <input type="text" name="email" id="email" placeholder="Your email address">
+            <input type="password" name="password" id="password" placeholder="Your password">
+            <input type="submit" value="Go!">
+        </form>
+    </div>
+    <div>
+        <form action="/register" method="post">
+            <h2>Register</h2>
+            <input type="text" name="email" id="email" placeholder="Your email address">
+            <input type="text" name="name" id="name" placeholder="Your display name">
+            <input type="password" name="password" id="password" placeholder="Your new password">
+            <input type="submit" value="Register">
+        </form>
+    </div>
+</div>
+
+{% endblock %}

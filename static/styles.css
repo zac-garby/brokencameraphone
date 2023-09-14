@@ -1,0 +1,156 @@
+* {
+    box-sizing: border-box;
+    color: rgb(119, 0, 34);
+}
+
+html, body {
+    background-color: white;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 1.2rem;
+}
+
+h1.logo {
+    text-align: center;
+}
+
+img.logo {
+    width: 275px;
+    animation-name: wiggle;
+    animation-duration: 4s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+@keyframes wiggle {
+    from {
+        transform: rotate(-3deg);
+    }
+
+    to {
+        transform: rotate(4deg);
+    }
+}
+
+div.wrapper {
+    width: 600px;
+    margin: auto;
+    margin-top: 60px;
+    left: 0;
+    right: 0;
+}
+
+.center {
+    text-align: center;
+}
+
+h1, h2, h3 {
+    color: rgb(200, 0, 57);
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+form {
+    border: 2px solid rgb(200, 0, 57);
+    border-radius: 15px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+form input {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+form input[type=text], form input[type=password] {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid rgb(217, 163, 178);
+    border-radius: 10px;
+}
+
+form input[type=submit] {
+    padding: 8px 32px;
+    margin: 0;
+    background-color: rgb(200, 0, 57);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+div#error {
+    background-color: rgba(200, 0, 57, 0.1);
+    padding: 10px;
+    font-weight: bold;
+}
+
+ul.flashes {
+    list-style: none;
+    padding-left: 0;
+}
+
+ul.flashes li {
+    background-color: rgba(141, 172, 240, 0.1);
+    color: rgb(22, 37, 71);
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+ul.flashes li:first-child {
+    margin-bottom: 0;
+}
+
+div.split {
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+
+div.split > div {
+    padding: 10px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 10px;
+    font-weight: bold;
+    background-color: rgba(150, 150, 150, 0.1);
+}
+
+nav ul * {
+    color: rgb(45, 45, 45);
+    text-decoration: none;
+}
+
+nav ul li {
+    display: inline;
+    padding-right: 15px;
+}
+
+p {
+    margin-top: 0;
+}
+
+p.code {
+    text-align: center;
+    background-color: rgba(141, 172, 240, 0.1);
+    color:rgb(22, 37, 71);
+    font-weight: bold;
+    font-size: 2rem;
+    padding: 15px;
+}
+
+ul#players {
+    list-style: none;
+    padding-left: 0;
+}
+
+ul#players li {
+    background-color: rgba(141, 172, 240, 0.1);
+    color: rgb(22, 37, 71);
+    padding: 10px;
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}

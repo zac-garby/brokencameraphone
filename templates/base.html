@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <title>{% block title %}{% endblock %} - Broken Cameraphone</title>
+    {% block head %}{% endblock %}
+</head>
+<body onload="if (window['onLoad']) onLoad()">
+    <div class="wrapper">
+        <header>
+            <h1 class="logo">
+                <a href="/">
+                    <img class="logo" src="/static/logo.png" alt="Broken Cameraphone">
+                </a>
+            </h1>
+        </header>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul class="flashes">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+        {% endwith %}
+        {% if error %}<div id="error">
+            {{ error }}
+        </div>{% endif %}
+        <article>
+            {% block content %}{% endblock %}
+        </article>
+    </div>
+</body>
+</html>

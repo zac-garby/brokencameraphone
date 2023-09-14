@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Game{% endblock %}
+
+{% block head %}
+<script src="/static/lobby.js"></script>
+{% endblock %}
+
+{% block content %}
+<nav>
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/logout">Log Out</a></li>
+        <li><a href="/leave-game/{{ game["join_code"] }}">Leave Lobby</a></li>
+    </ul>
+</nav>
+<div class="split">
+    <div>
+        <h2>Lobby</h2>
+        <p>
+            Currently waiting for players to join. Invite your friends using the code below:
+        </p>
+        <p class="code">
+            {{ game["join_code"] }}
+        </p>
+    </div>
+    <div>
+        <h2>Players</h2>
+        <ul id="players"></ul>
+    </div>
+</div>
+{% endblock %}
