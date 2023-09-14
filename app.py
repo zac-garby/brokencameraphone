@@ -1,7 +1,7 @@
 import os
 import lib.db as db
 
-from lib import users, lobby
+from lib import users, lobby, game
 
 from flask import Flask, session
 from flask.helpers import url_for
@@ -24,6 +24,7 @@ db.init_app(app)
 
 users.register_routes(app)
 lobby.register_routes(app)
+game.register_routes(app)
 
 @app.route("/")
 def index():

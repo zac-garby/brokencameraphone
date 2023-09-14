@@ -17,17 +17,26 @@
 <div class="split">
     <div>
         <h2>Initial Prompts</h2>
+        {% if participant.has_submitted == 1 %}
+        <p>
+            Thanks for the prompt! Now just to wait for the others.
+        </p>
+        <p>
+            If you're in a voice chat, make annoying noises at them to speed them up.
+        </p>
+        {% else %}
         <p>
             Enter an initial prompt to give to somebody else below. This can be absolutely anything!
         </p>
-        <form action="#">
-            <input type="text" placeholder="An example prompt here">
+        <form action="/submit-prompt/{{ game['join_code'] }}" method="post">
+            <textarea name="prompt" id="prompt" rows="3" placeholder="An example prompt here"></textarea>
             <input type="submit" value="Send prompt">
         </form>
+        {% endif %}
         <ul class="lobby-controls">
-            <li>
+            <!-- <li>
                 <a href="/leave-game/{{ game['join_code'] }}">Leave Lobby</a>
-            </li>
+            </li> -->
         </ul>
     </div>
     <div>

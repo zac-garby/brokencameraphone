@@ -33,7 +33,7 @@ img.logo {
 }
 
 div.wrapper {
-    width: 600px;
+    width: 700px;
     margin: auto;
     margin-top: 60px;
     left: 0;
@@ -63,11 +63,13 @@ form input {
     font-size: 1rem;
 }
 
-form input[type=text], form input[type=password] {
+form input[type=text], form input[type=password], form textarea {
     width: 100%;
     padding: 8px;
     border: 2px solid rgb(217, 163, 178);
     border-radius: 5px;
+    resize: none;
+    font-size: 1rem;
 }
 
 form input[type=submit] {
@@ -106,7 +108,7 @@ ul.flashes li:first-child {
 
 div.split {
     display: grid;
-    grid-template-columns: 50% 50%;
+    grid-template-columns: 60% auto;
 }
 
 div.split > div {

@@ -16,7 +16,8 @@ def register_routes(app: Flask):
     @app.get("/game/<joincode>")
     @helpers.logged_in
     @helpers.with_game("game")
-    def game_get(joincode, game):
+    @helpers.with_participant("participant")
+    def game_get(joincode, game, participant):
         if game is None:
             flash("The game you tried to join does not exist.")
             return redirect(url_for("index"))
@@ -52,6 +53,7 @@ def register_routes(app: Flask):
             return render_template(
                 template,
                 game=game,
+                participant=participant,
                 is_owner=game['owner_id'] == session["user_id"]) # type: ignore
 
     @app.get("/leave-game/<joincode>")
@@ -80,19 +82,7 @@ def register_routes(app: Flask):
                      commit=True)
 
         return redirect("/game/" + joincode)
-    
-    @app.get("/submit-prompt/<joincode>")
-    @helpers.logged_in
-    @helpers.with_game("game")
-    @helpers.with_participant("participant")
-    def submit_prompt_get(joincode, participant, game):
-        if game["state"] not in [1, 3]:
-            flash("You can't submit a prompt in this game state!")
-            return redirect("/game/" + joincode)
-        
 
-
-        return redirect("/game/" + joincode)
 
     @app.get("/new-game")
     @helpers.logged_in
