@@ -1,4 +1,5 @@
 var playerList = []
+var state = undefined
 
 function onLoad() {
     updatePlayerList()
@@ -21,6 +22,14 @@ function updatePlayerList() {
             } else {
                 playerList = resp["players"]
                 renderPlayerList()
+
+                var newState = resp["state"]
+                if (state !== undefined && state != newState) {
+                    window.location.href = window.location.href
+                    console.log("refreshing")
+                }
+
+                state = newState
             }
 
             window.setTimeout(updatePlayerList, 2000)
