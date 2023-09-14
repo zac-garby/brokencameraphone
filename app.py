@@ -1,5 +1,5 @@
 import os
-import db
+import lib.db as db
 
 from lib import users, lobby
 

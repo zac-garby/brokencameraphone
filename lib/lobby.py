@@ -1,4 +1,6 @@
-import db
+import lib.db as db
+import lib.helpers as helpers
+
 import random
 
 from flask import Flask, session, request, flash
@@ -12,10 +14,8 @@ def register_routes(app: Flask):
         return redirect("/game/" + request.form["join-code"]) # type: ignore
 
     @app.get("/game/<joincode>")
+    @helpers.logged_in
     def game_get(joincode):
-        if "user_id" not in session:
-            return redirect(url_for("index"))
-
         game = db.query("select * from games where join_code = ?",
                         [joincode], one=True)
         
@@ -51,20 +51,15 @@ def register_routes(app: Flask):
                 3: "photo-prompt.html"
             }[state]
 
-            return render_template(template, game=game)
+            return render_template(
+                template,
+                game=game,
+                is_owner=game['owner_id'] == session["user_id"]) # type: ignore
 
     @app.get("/leave-game/<joincode>")
-    def leave_game_get(joincode):
-        if "user_id" not in session:
-            return redirect(url_for("index"))
-        
-        participant = db.query("""
-                            select * from participants
-                            inner join games on participants.game_id = games.id
-                            where user_id = ? and games.join_code = ?
-                            """,
-                            [session["user_id"], joincode], one=True)
-        
+    @helpers.logged_in
+    @helpers.with_participant
+    def leave_game_get(joincode, participant):
         if participant is None:
             flash("You attempted to leave a game which you're not in!")
         else:
@@ -73,12 +68,21 @@ def register_routes(app: Flask):
                     commit=True)
         
         return redirect(url_for("index"))
+    
+    @app.get("/start-game/<joincode>")
+    @helpers.logged_in
+    @helpers.with_participant
+    def start_game_get(joincode, participant):
+        if participant is None:
+            flash("You attempted to start a game which you're not in!")
+        else:
+            pass
+
+        return redirect("/game/" + joincode)
 
     @app.get("/new-game")
+    @helpers.logged_in
     def new_game_get():
-        if "user_id" not in session:
-            return redirect(url_for("index"))
-        
         code = None
         symbols = "ABCDEFGHIJKLMNLOPQRSTUVWXYZ"
 
@@ -97,10 +101,8 @@ def register_routes(app: Flask):
         return redirect(f"/game/{code}")
 
     @app.get("/api/lobby/<joincode>")
+    @helpers.logged_in
     def api_lobby(joincode):
-        if "user_id" not in session:
-            return redirect(url_for("index"))
-    
         participants = db.query("""
         select display_name, users.id = g.owner_id as "is_owner" from users
         inner join participants as p on users.id = p.user_id

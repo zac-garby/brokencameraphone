@@ -139,6 +139,7 @@ p.code {
     font-weight: bold;
     font-size: 2rem;
     padding: 15px;
+    margin-bottom: 0;
 }
 
 ul#players {
@@ -153,4 +154,22 @@ ul#players li {
     font-weight: bold;
     font-size: 1.5rem;
     margin-bottom: 10px;
+}
+
+ul.lobby-controls {
+    list-style: none;
+    font-weight: bold;
+    padding: 10px;
+}
+
+ul.lobby-controls li {
+    background-color: rgba(150, 150, 150, 0.1);
+    margin-bottom: 10px;
+}
+
+ul.lobby-controls a {
+    display: block;
+    padding: 10px;
+    color: rgb(45, 45, 45);
+    text-decoration: none;
 }

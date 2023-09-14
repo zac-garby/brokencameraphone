@@ -1,4 +1,4 @@
-import db
+import lib.db as db
 import bcrypt
 
 from flask import Flask, session, request, flash
