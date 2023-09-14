@@ -172,7 +172,7 @@ ul#players li {
 ul.lobby-controls {
     list-style: none;
     font-weight: bold;
-    padding: 10px;
+    padding: 0px;
 }
 
 ul.lobby-controls li {

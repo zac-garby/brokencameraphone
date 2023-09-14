@@ -24,15 +24,15 @@
             <input type="text" placeholder="An example prompt here">
             <input type="submit" value="Send prompt">
         </form>
+        <ul class="lobby-controls">
+            <li>
+                <a href="/leave-game/{{ game['join_code'] }}">Leave Lobby</a>
+            </li>
+        </ul>
     </div>
     <div>
         <h2>Players</h2>
         <ul id="players"></ul>
     </div>
 </div>
-<ul class="lobby-controls">
-    <li>
-        <a href="/leave-game/{{ game['join_code'] }}">Leave Lobby</a>
-    </li>
-</ul>
 {% endblock %}
