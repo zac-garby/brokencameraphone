@@ -142,6 +142,13 @@ p.code {
     margin-bottom: 0;
 }
 
+li.code, span.code {
+    font-weight: normal;
+    background-color: rgba(141, 172, 240, 0.1);
+    border-radius: 5px;
+    padding: 5px;
+}
+
 ul#players {
     list-style: none;
     padding-left: 0;
@@ -172,4 +179,13 @@ ul.lobby-controls a {
     padding: 10px;
     color: rgb(45, 45, 45);
     text-decoration: none;
+}
+
+ul.game-list li {
+    margin-bottom: 15px;
+}
+
+span.status {
+    font-style: italic;
+    font-size: 0.9rem;
 }

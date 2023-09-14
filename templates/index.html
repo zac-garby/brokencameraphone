@@ -14,9 +14,25 @@
         <p>
             Welcome to <strong>Broken Cameraphone</strong>! The game which is totally not a copy of <a href="https://www.brokenpicturephone.com">broken picturephone</a>.
         </p>
-        <p>
-
-        </p>
+        {% if games %}
+        <h3>Your Games:</h3>
+        <ul class="game-list">
+        {% for game in games %}
+            <li>
+                <a href="/game/{{ game.join_code }}"><span class="code">{{ game.join_code }}</span></a>
+                {% if game.state == 0 %}
+                <span class="status">In lobby</span>
+                {% elif game.state == 1 %}
+                <span class="status">Initial prompts</span>
+                {% elif game.state == 2 %}
+                <span class="status">Taking photos!</span>
+                {% elif game.state == 3 %}
+                <span class="status">Writing prompts</span>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
     </div>
     <div>
         <form action="/new-game" method="get">

@@ -54,3 +54,25 @@ def with_game(param):
         return new_handler
 
     return wrapper
+
+def lobby_owner(otherwise):
+    def wrapper(handler):
+        def new_handler(*args, **kw):
+            game = db.query("select * from games where join_code = ?",
+                                [kw["joincode"]], one=True)
+            
+            if game is None:
+                flash(f"The game {kw['joincode']} does not exist.")
+                return redirect(url_for("index"))
+            
+            if game["owner_id"] != session["user_id"]: # type: ignore
+                flash(f"You must be the owner of the game to do this!")
+                return redirect(url_for("index"))
+            
+            return handler(*args, **kw)
+        
+        new_handler.__name__ = "lobby_owner_handler_" + handler.__name__
+
+        return new_handler
+    
+    return wrapper

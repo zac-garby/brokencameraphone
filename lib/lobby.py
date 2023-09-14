@@ -70,11 +70,14 @@ def register_routes(app: Flask):
     @app.get("/start-game/<joincode>")
     @helpers.logged_in
     @helpers.with_participant("participant")
+    @helpers.lobby_owner(otherwise="index")
     def start_game_get(joincode, participant):
         if participant is None:
             flash("You attempted to start a game which you're not in!")
         else:
-            pass
+            db.query("update games set state = 1 where join_code = ?",
+                     [joincode],
+                     commit=True)
 
         return redirect("/game/" + joincode)
 

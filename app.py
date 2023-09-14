@@ -28,6 +28,14 @@ lobby.register_routes(app)
 @app.route("/")
 def index():
     if "user_id" in session:
-        return render_template("index.html")
+        games = db.query("""
+            select *
+            from games
+            inner join participants as p on games.id = p.game_id
+            where p.user_id = ?
+                         """,
+                         [session["user_id"]])
+        
+        return render_template("index.html", games=games)
     else:
         return redirect(url_for("login_get"))
