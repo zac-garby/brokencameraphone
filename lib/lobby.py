@@ -15,10 +15,8 @@ def register_routes(app: Flask):
 
     @app.get("/game/<joincode>")
     @helpers.logged_in
-    def game_get(joincode):
-        game = db.query("select * from games where join_code = ?",
-                        [joincode], one=True)
-        
+    @helpers.with_game("game")
+    def game_get(joincode, game):
         if game is None:
             flash("The game you tried to join does not exist.")
             return redirect(url_for("index"))
@@ -58,7 +56,7 @@ def register_routes(app: Flask):
 
     @app.get("/leave-game/<joincode>")
     @helpers.logged_in
-    @helpers.with_participant
+    @helpers.with_participant("participant")
     def leave_game_get(joincode, participant):
         if participant is None:
             flash("You attempted to leave a game which you're not in!")
@@ -71,7 +69,7 @@ def register_routes(app: Flask):
     
     @app.get("/start-game/<joincode>")
     @helpers.logged_in
-    @helpers.with_participant
+    @helpers.with_participant("participant")
     def start_game_get(joincode, participant):
         if participant is None:
             flash("You attempted to start a game which you're not in!")
@@ -102,7 +100,8 @@ def register_routes(app: Flask):
 
     @app.get("/api/lobby/<joincode>")
     @helpers.logged_in
-    def api_lobby(joincode):
+    @helpers.with_game("game")
+    def api_lobby(joincode, game):
         participants = db.query("""
         select display_name, users.id = g.owner_id as "is_owner" from users
         inner join participants as p on users.id = p.user_id
@@ -110,12 +109,6 @@ def register_routes(app: Flask):
         where g.join_code = ?
                             """,
                             [joincode])
-
-        game = db.query("""
-        select * from games
-        where join_code = ?
-                        """,
-                        [joincode], one=True)
         
         if participants != None:
             players = [ {
