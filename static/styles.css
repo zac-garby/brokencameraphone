@@ -51,8 +51,8 @@ h1, h2, h3 {
 }
 
 form {
-    border: 2px solid rgb(200, 0, 57);
-    border-radius: 15px;
+    background-color: rgb(200, 0, 57, 0.1);
+    border-radius: 10px;
     padding: 10px;
     margin-bottom: 15px;
 }
@@ -67,16 +67,18 @@ form input[type=text], form input[type=password] {
     width: 100%;
     padding: 8px;
     border: 2px solid rgb(217, 163, 178);
-    border-radius: 10px;
+    border-radius: 5px;
 }
 
 form input[type=submit] {
+    display: block;
+    width: 100%;
     padding: 8px 32px;
     margin: 0;
     background-color: rgb(200, 0, 57);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 5px;
     cursor: pointer;
 }
 
@@ -140,6 +142,8 @@ p.code {
     font-size: 2rem;
     padding: 15px;
     margin-bottom: 0;
+    font-family: monospace;
+    letter-spacing: 8px;
 }
 
 li.code, span.code {
@@ -147,6 +151,8 @@ li.code, span.code {
     background-color: rgba(141, 172, 240, 0.1);
     border-radius: 5px;
     padding: 5px;
+    font-family: monospace;
+    letter-spacing: 2px;
 }
 
 ul#players {
@@ -170,19 +176,31 @@ ul.lobby-controls {
 }
 
 ul.lobby-controls li {
-    background-color: rgba(150, 150, 150, 0.1);
+    display: block;
+    width: 100%;
+    padding: 8px 16px;
+    margin: 0;
+    background-color: rgb(200, 0, 57);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
     margin-bottom: 10px;
 }
 
 ul.lobby-controls a {
     display: block;
-    padding: 10px;
-    color: rgb(45, 45, 45);
     text-decoration: none;
+    color: white;
+}
+
+ul.game-list {
+    padding-left: 0;
+    list-style: none;
 }
 
 ul.game-list li {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 span.status {

@@ -20,14 +20,18 @@
         {% for game in games %}
             <li>
                 <a href="/game/{{ game.join_code }}"><span class="code">{{ game.join_code }}</span></a>
-                {% if game.state == 0 %}
-                <span class="status">In lobby</span>
-                {% elif game.state == 1 %}
-                <span class="status">Initial prompts</span>
-                {% elif game.state == 2 %}
-                <span class="status">Taking photos!</span>
-                {% elif game.state == 3 %}
-                <span class="status">Writing prompts</span>
+                {% if game.has_submitted or game.state in [0] %}
+                    {% if game.state == 0 %}
+                    <span class="status">Waiting for players...</span>
+                    {% elif game.state == 1 %}
+                    <span class="status">Waiting for prompts</span>
+                    {% elif game.state == 2 %}
+                    <span class="status">Taking photos!</span>
+                    {% elif game.state == 3 %}
+                    <span class="status">Waiting for prompts</span>
+                    {% endif %}
+                {% else %}
+                    <span class="status">Waiting for you!</span>
                 {% endif %}
             </li>
         {% endfor %}

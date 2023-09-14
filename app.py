@@ -29,8 +29,7 @@ lobby.register_routes(app)
 def index():
     if "user_id" in session:
         games = db.query("""
-            select *
-            from games
+            select * from games
             inner join participants as p on games.id = p.game_id
             where p.user_id = ?
                          """,

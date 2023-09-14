@@ -34,10 +34,5 @@
     <li>
         <a href="/leave-game/{{ game['join_code'] }}">Leave Lobby</a>
     </li>
-    {% if is_owner %}
-    <li>
-        <a href="/start-game/{{ game['join_code'] }}">👑 Start Game</a>
-    </li>
-    {% endif %}
 </ul>
 {% endblock %}

@@ -35,7 +35,7 @@ def register_routes(app: Flask):
             # can join; game not yet started. not yet a participant, so making them one
             else:
                 flash("You successfully joined the game.")
-                db.query("insert into participants (user_id, game_id) values (?, ?)",
+                db.query("insert into participants (user_id, game_id, has_submitted) values (?, ?, 0)",
                     [session["user_id"], game["id"]], # type: ignore
                     commit=True)
                 return redirect("/game/" + joincode)
@@ -80,6 +80,19 @@ def register_routes(app: Flask):
                      commit=True)
 
         return redirect("/game/" + joincode)
+    
+    @app.get("/submit-prompt/<joincode>")
+    @helpers.logged_in
+    @helpers.with_game("game")
+    @helpers.with_participant("participant")
+    def submit_prompt_get(joincode, participant, game):
+        if game["state"] not in [1, 3]:
+            flash("You can't submit a prompt in this game state!")
+            return redirect("/game/" + joincode)
+        
+
+
+        return redirect("/game/" + joincode)
 
     @app.get("/new-game")
     @helpers.logged_in
@@ -94,8 +107,8 @@ def register_routes(app: Flask):
             if game is None:
                 break
         
-        db.query("insert into games (join_code, owner_id, state) values (?, ?, ?)",
-                [code, session["user_id"], 0],
+        db.query("insert into games (join_code, owner_id, state, current_round) values (?, ?, 0, 0)",
+                [code, session["user_id"]],
                 commit=True)
         
         print("making game with code", code)
