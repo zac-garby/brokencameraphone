@@ -16,13 +16,23 @@ def register_routes(app: Flask):
     @app.get("/leave-game/<joincode>")
     @helpers.logged_in
     @helpers.with_participant("participant")
-    def leave_game_get(joincode, participant):
+    @helpers.with_game("game")
+    def leave_game_get(joincode, participant, game):
         if participant is None:
             flash("You attempted to leave a game which you're not in!")
-        else:
-            db.query("delete from participants where user_id = ? and game_id = ?",
-                    [session["user_id"], participant["game_id"]], # type: ignore
-                    commit=True)
+            return redirect(url_for("index"))
+        
+        if game["state"] != 0:
+            flash("You can't leave a game which has started.")
+            return redirect(url_for("index"))
+        
+        if participant["user_id"] == game["owner_id"]:
+            flash("You can't leave the game - you made it!")
+            return redirect(url_for("index"))
+  
+        db.query("delete from participants where user_id = ? and game_id = ?",
+                [session["user_id"], participant["game_id"]], # type: ignore
+                commit=True)
         
         return redirect(url_for("index"))
     
