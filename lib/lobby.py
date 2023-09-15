@@ -33,10 +33,22 @@ def register_routes(app: Flask):
     def start_game_get(joincode, participant):
         if participant is None:
             flash("You attempted to start a game which you're not in!")
-        else:
-            db.query("update games set state = 1 where join_code = ?",
-                     [joincode],
-                     commit=True)
+            return redirect("/game/" + joincode)
+        
+        participants = db.query(
+            """
+            select * from participants
+            inner join games on games.id = participants.game_id
+            where games.join_code = ?
+            """, [joincode])
+        
+        if participants == None or len(participants) <= 1:
+            flash("You need at least two players to start a game.")
+            return redirect("/game/" + joincode)
+
+        db.query("update games set state = 1 where join_code = ?",
+                    [joincode],
+                    commit=True)
 
         return redirect("/game/" + joincode)
 
