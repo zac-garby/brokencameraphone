@@ -2,7 +2,7 @@ import os
 import lib.db as db
 import lib.helpers as helpers
 
-from flask import Flask, session, request, flash
+from flask import Flask, session, request, flash, send_from_directory
 from flask.helpers import url_for
 from flask.templating import render_template
 from werkzeug.utils import redirect
@@ -10,6 +10,53 @@ from werkzeug.utils import redirect
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "bmp"}
 
 def register_routes(app: Flask):
+    @app.get("/game/<joincode>")
+    @helpers.logged_in
+    @helpers.with_game("game")
+    @helpers.with_participant("participant")
+    def game_get(joincode, game, participant):
+        if game is None:
+            flash("The game you tried to join does not exist.")
+            return redirect(url_for("index"))
+        
+        participant = db.query("select * from participants where user_id = ? and game_id = ?",
+                            [session["user_id"], game["id"]], one=True) # type: ignore
+        
+        state = int(game["state"]) # type: ignore
+
+        if participant is None:
+            # can't join - not a participant, and the game has already started
+            if state > 0:
+                flash("This game is already in progress!")
+                return redirect(url_for("index"))
+            
+            # can join; game not yet started. not yet a participant, so making them one
+            else:
+                flash("You successfully joined the game.")
+                db.query("""
+                         insert into participants (user_id, game_id, has_submitted, ordering)
+                         values (?, ?, 0, (select count(*) from participants where game_id = ?))
+                         """,
+                    [session["user_id"], game["id"], game["id"]], # type: ignore
+                    commit=True)
+                return redirect("/game/" + joincode)
+        
+        # rejoining a game which the user is already part of
+        else:
+            template = {
+                0: "lobby.html",
+                1: "initial-prompt.html",
+                2: "photo.html",
+                3: "photo-prompt.html"
+            }[state]
+
+            return render_template(
+                template,
+                game=game,
+                participant=participant,
+                previous_submission=get_previous_submission(joincode, participant),
+                is_owner=game['owner_id'] == session["user_id"]) # type: ignore
+        
     @app.post("/submit-prompt/<joincode>")
     @helpers.logged_in
     @helpers.with_game("game")
@@ -79,7 +126,7 @@ def register_routes(app: Flask):
                  insert into submissions (user_id, game_id, round, photo_path)
                  values (?, ?, ?, ?)
                  """,
-                 [session["user_id"], game["id"], game["current_round"], path],
+                 [session["user_id"], game["id"], game["current_round"], new_filename],
                  commit=True)
         
         # record that the participant has submitted for this game
@@ -95,6 +142,10 @@ def register_routes(app: Flask):
             advance_round(joincode, game)
 
         return redirect("/game/" + joincode)
+    
+    @app.get("/photo/<path>")
+    def get_photo(path):
+        return send_from_directory(app.config["UPLOAD_FOLDER"], path)
 
 def allowed_photo_file(filename):
     ext = filename.rsplit(".", 1)[1].lower()
@@ -128,3 +179,26 @@ def advance_round(joincode, game):
             state = ?
         where join_code = ?
         """, [new_state, joincode], commit=True)
+
+# gets the prompt (or photo prompt) which a player should be
+# prompted with in the current round.
+# 
+# each participant has an "ordering", and we use this to
+# decide which participant's prompt each user (the player)
+# should be given in each round (the author)
+# 
+# the ordering of the author is calculated as:
+# 
+#  author.ordering = (participant.ordering + game.round) % (num. participants)
+def get_previous_submission(joincode, participant):
+    submission = db.query("""
+    select s.user_id, s.game_id, round, photo_path, prompt from submissions as s
+    inner join participants as p on s.user_id = p.user_id and s.game_id = p.game_id
+    inner join games as g on s.game_id = g.id
+    where g.join_code = ? and s.round = (g.current_round - 1) and p.ordering = (
+        select ((1 + ?) % (select count(*) from participants where game_id = games.id)) as ordering
+        from games where join_code = ?
+    )
+    """, [joincode, participant["ordering"], joincode], one=True)
+
+    return submission

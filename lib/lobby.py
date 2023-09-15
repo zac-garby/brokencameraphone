@@ -13,49 +13,6 @@ def register_routes(app: Flask):
     def game_no_param_post():
         return redirect("/game/" + request.form["join-code"]) # type: ignore
 
-    @app.get("/game/<joincode>")
-    @helpers.logged_in
-    @helpers.with_game("game")
-    @helpers.with_participant("participant")
-    def game_get(joincode, game, participant):
-        if game is None:
-            flash("The game you tried to join does not exist.")
-            return redirect(url_for("index"))
-        
-        participant = db.query("select * from participants where user_id = ? and game_id = ?",
-                            [session["user_id"], game["id"]], one=True) # type: ignore
-        
-        state = int(game["state"]) # type: ignore
-
-        if participant is None:
-            # can't join - not a participant, and the game has already started
-            if state > 0:
-                flash("This game is already in progress!")
-                return redirect(url_for("index"))
-            
-            # can join; game not yet started. not yet a participant, so making them one
-            else:
-                flash("You successfully joined the game.")
-                db.query("insert into participants (user_id, game_id, has_submitted) values (?, ?, 0)",
-                    [session["user_id"], game["id"]], # type: ignore
-                    commit=True)
-                return redirect("/game/" + joincode)
-        
-        # rejoining a game which the user is already part of
-        else:
-            template = {
-                0: "lobby.html",
-                1: "initial-prompt.html",
-                2: "photo.html",
-                3: "photo-prompt.html"
-            }[state]
-
-            return render_template(
-                template,
-                game=game,
-                participant=participant,
-                is_owner=game['owner_id'] == session["user_id"]) # type: ignore
-
     @app.get("/leave-game/<joincode>")
     @helpers.logged_in
     @helpers.with_participant("participant")

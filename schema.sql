@@ -28,6 +28,7 @@ CREATE TABLE participants (
     user_id INTEGER NOT NULL,
     game_id INTEGER NOT NULL,
 
+    ordering INTEGER NOT NULL,
     has_submitted INTEGER NOT NULL,
 
     FOREIGN KEY (user_id) REFERENCES users (id),

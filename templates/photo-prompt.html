@@ -16,24 +16,21 @@
 </nav>
 <div class="split">
     <div>
-        <h2>Take your photo!</h2>
+        <h2>Here's a photo.</h2>
         {% if participant.has_submitted == 1 %}
         <p>
-            Thanks for the photo! Now just to wait for the others.
+            Thanks for the prompt! Now just to wait for the others.
         </p>
         <p>
             This may take a while. Remember - some people are lazy.
         </p>
         {% else %}
-        <p>
-            Your prompt is:
-        </p>
-        <p id="prompt">
-            {{ previous_submission["prompt"] }}
-        </p>
-        <p>Go out into the wide world and take a photo of something which this reminds you of!</p>
-        <form action="/submit-photo/{{ game['join_code'] }}" method="post" enctype="multipart/form-data">
-            <input type="file" name="photo" id="photo" accept="image/*" capture="environment">
+        <a href="/photo/{{ previous_submission['photo_path'] }}">
+            <img id="prompt" src="/photo/{{ previous_submission['photo_path'] }}">
+        </a>
+        <p>What do you think the prompt might have been for this photo?</p>
+        <form action="/submit-prompt/{{ game['join_code'] }}" method="post" enctype="multipart/form-data">
+            <textarea name="prompt" id="prompt" rows="3" placeholder="An example prompt here"></textarea>
             <input type="submit" value="Send photo">
         </form>
         {% endif %}

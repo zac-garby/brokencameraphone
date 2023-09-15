@@ -66,6 +66,7 @@ form input {
 form input[type=text], form input[type=password], form textarea {
     width: 100%;
     padding: 8px;
+    margin-bottom: 10px;
     border: 2px solid rgb(217, 163, 178);
     border-radius: 5px;
     resize: none;
@@ -141,6 +142,11 @@ p#prompt {
     font-weight: bold;
 }
 
+img#prompt {
+    width: 100%;
+    margin: 10px 0;
+}
+
 p.code {
     text-align: center;
     background-color: rgba(141, 172, 240, 0.1);
@@ -149,7 +155,7 @@ p.code {
     font-size: 2rem;
     padding: 15px;
     margin-bottom: 0;
-    font-family: monospace;
+    font-family: "Roboto Mono", monospace;
     letter-spacing: 8px;
 }
 
