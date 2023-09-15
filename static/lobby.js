@@ -50,6 +50,9 @@ function renderPlayerList() {
         if (player["is_owner"]) {
             li.innerHTML = "👑 " + li.innerHTML
         }
+        if (player["has_submitted"] > 0) {
+            li.classList.add("submitted")
+        }
         ul.appendChild(li)
     }
 }

@@ -20,7 +20,7 @@ CREATE TABLE games (
     -- 3: doing prompts from photos
     state INTEGER,
 
-    FOREIGN KEY (owner_id) REFERENCES user (id)
+    FOREIGN KEY (owner_id) REFERENCES users (id)
 );
 
 DROP TABLE IF EXISTS participants;
@@ -30,8 +30,8 @@ CREATE TABLE participants (
 
     has_submitted INTEGER NOT NULL,
 
-    FOREIGN KEY (user_id) REFERENCES user (id),
-    FOREIGN KEY (game_id) REFERENCES game (id),
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (game_id) REFERENCES games (id),
 
     PRIMARY KEY (user_id, game_id)
 );
@@ -48,6 +48,6 @@ CREATE TABLE submissions (
     photo_path TEXT,
     prompt TEXT,
 
-    FOREIGN KEY (user_id) REFERENCES user (id),
-    FOREIGN KEY (game_id) REFERENCES game (id)
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (game_id) REFERENCES games (id)
 );

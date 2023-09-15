@@ -136,6 +136,11 @@ p {
     margin-top: 0;
 }
 
+p#prompt {
+    text-align: center;
+    font-weight: bold;
+}
+
 p.code {
     text-align: center;
     background-color: rgba(141, 172, 240, 0.1);
@@ -169,6 +174,10 @@ ul#players li {
     font-weight: bold;
     font-size: 1.5rem;
     margin-bottom: 10px;
+}
+
+ul#players li.submitted {
+    color: rgb(22, 37, 71, 0.5);
 }
 
 ul.lobby-controls {

@@ -109,7 +109,7 @@ def register_routes(app: Flask):
     @helpers.with_game("game")
     def api_lobby(joincode, game):
         participants = db.query("""
-        select display_name, users.id = g.owner_id as "is_owner" from users
+        select display_name, users.id = g.owner_id as "is_owner" , p.has_submitted from users
         inner join participants as p on users.id = p.user_id
         inner join games as g on p.game_id = g.id
         where g.join_code = ?
@@ -120,6 +120,7 @@ def register_routes(app: Flask):
             players = [ {
                 "display_name": p["display_name"],
                 "is_owner": p["is_owner"],
+                "has_submitted": p["has_submitted"]
             } for p in participants ]
 
             return {
