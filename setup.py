@@ -6,6 +6,6 @@ setup(
     description="A game.",
     author="Zac Garby",
     author_email="me@zacgarby.co.uk",
-    packages=find_packages(),
+    packages=["brokencameraphone", "brokencameraphone.lib"],
     install_requires=["Flask", "bcrypt"]
 )
