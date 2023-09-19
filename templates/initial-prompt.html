@@ -3,17 +3,11 @@
 {% block title %}Game{% endblock %}
 
 {% block head %}
+<script src="/static/initial-prompts.js"></script>
 <script src="/static/lobby.js"></script>
 {% endblock %}
 
 {% block content %}
-<nav>
-    <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/logout">Log Out</a></li>
-        <li class="code">{{ game["join_code"] }}</li>
-    </ul>
-</nav>
 <div class="split">
     <div>
         <h2>Initial Prompts</h2>
@@ -29,15 +23,10 @@
             Enter an initial prompt to give to somebody else below. This can be absolutely anything!
         </p>
         <form action="/submit-prompt/{{ game['join_code'] }}" method="post">
-            <textarea name="prompt" id="prompt" rows="3" placeholder="An example prompt here"></textarea>
+            <textarea name="prompt" id="prompt" rows="3"></textarea>
             <input type="submit" value="Send prompt">
         </form>
         {% endif %}
-        <ul class="lobby-controls">
-            <!-- <li>
-                <a href="/leave-game/{{ game['join_code'] }}">Leave Lobby</a>
-            </li> -->
-        </ul>
     </div>
     <div>
         <h2>Players</h2>

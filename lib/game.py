@@ -47,7 +47,8 @@ def register_routes(app: Flask):
                 0: "lobby.html",
                 1: "initial-prompt.html",
                 2: "photo.html",
-                3: "photo-prompt.html"
+                3: "photo-prompt.html",
+                4: "game-over.html"
             }[state]
 
             return render_template(
@@ -55,6 +56,7 @@ def register_routes(app: Flask):
                 game=game,
                 participant=participant,
                 previous_submission=get_previous_submission(joincode, participant),
+                user_id=session["user_id"],
                 is_owner=game['owner_id'] == session["user_id"]) # type: ignore
         
     @app.post("/submit-prompt/<joincode>")
@@ -70,12 +72,22 @@ def register_routes(app: Flask):
             flash("You already submitted for this round!")
             return redirect("/game/" + joincode)
         
+        prev = get_previous_submission(joincode, participant)
+        if prev == None:
+            prev = {"root_user": session["user_id"]}
+        
         # submit the prompt
         db.query("""
-                 insert into submissions (user_id, game_id, round, prompt)
-                 values (?, ?, ?, ?)
+                 insert into submissions (user_id, game_id, round, prompt, root_user)
+                 values (?, ?, ?, ?, ?)
                  """,
-                 [session["user_id"], game["id"], game["current_round"], request.form["prompt"]],
+                 [
+                     session["user_id"],
+                     game["id"],
+                     game["current_round"],
+                     request.form["prompt"],
+                     prev["root_user"] # type: ignore
+                 ],
                  commit=True)
         
         # record that the participant has submitted for this game
@@ -105,6 +117,10 @@ def register_routes(app: Flask):
             flash("You already submitted for this round!")
             return redirect("/game/" + joincode)
         
+        prev = get_previous_submission(joincode, participant)
+        if prev == None:
+            prev = {"root_user": session["user_id"]}
+        
         # submit the photo
         if "photo" not in request.files or request.files["photo"].filename == "":
             flash("No photo uploaded...")
@@ -123,10 +139,16 @@ def register_routes(app: Flask):
         
         # submit the photo
         db.query("""
-                 insert into submissions (user_id, game_id, round, photo_path)
-                 values (?, ?, ?, ?)
+                 insert into submissions (user_id, game_id, round, photo_path, root_user)
+                 values (?, ?, ?, ?, ?)
                  """,
-                 [session["user_id"], game["id"], game["current_round"], new_filename],
+                 [
+                     session["user_id"],
+                     game["id"],
+                     game["current_round"],
+                     new_filename,
+                     prev["root_user"] # type: ignore
+                 ],
                  commit=True)
         
         # record that the participant has submitted for this game
@@ -146,6 +168,80 @@ def register_routes(app: Flask):
     @app.get("/photo/<path>")
     def get_photo(path):
         return send_from_directory(app.config["UPLOAD_FOLDER"], path)
+    
+    @app.get("/api/gallery/view/<joincode>")
+    @helpers.logged_in
+    @helpers.with_game("game")
+    @helpers.with_participant("participant")
+    def get_api_gallery_view(joincode, game, participant):
+        submissions = db.query(
+            """
+            select round, photo_path, prompt, display_name, root_user from submissions
+            inner join games on games.id = submissions.game_id
+            inner join users on users.id = submissions.user_id
+            where games.current_showing_user = submissions.root_user and submissions.revealed and games.join_code = ?
+            order by round desc
+            """, [joincode])
+        
+        if submissions == None or len(submissions) == 0:
+            return {
+                "submissions": [],
+                "amount": 0,
+                "current_showing_user": game["current_showing_user"]
+            }
+        
+        return {
+            "submissions": [ {
+                "round": s["round"],
+                "photo_path": s["photo_path"],
+                "prompt": s["prompt"],
+                "display_name": s["display_name"]
+            } for s in submissions ],
+            "current_showing_user": game["current_showing_user"],
+            "amount": len(submissions)
+        }
+    
+    @app.get("/api/gallery/set/<joincode>/<user_id>")
+    @helpers.logged_in
+    @helpers.with_game("game")
+    @helpers.with_participant("participant")
+    def get_api_gallery_set(joincode, user_id, game, participant):
+        db.query(
+            """
+            update games 
+            set current_showing_user = ?
+            where join_code = ?
+            """, [user_id, joincode], commit=True)
+        
+        return {
+            "ok": True
+        }
+    
+    @app.get("/api/gallery/advance/<joincode>")
+    @helpers.logged_in
+    @helpers.with_game("game")
+    @helpers.with_participant("participant")
+    def get_api_gallery_advance(joincode, game, participant):
+        if game['owner_id'] != session["user_id"]:
+            return {
+                "ok": False
+            }
+        
+        db.query("""
+                 update submissions
+                 set revealed = 1
+                 where id = (
+                     select submissions.id from submissions
+                     inner join games on games.id = game_id
+                     where revealed = 0 and root_user = ? and games.join_code = ?
+                     order by round asc
+                     limit 1
+                 )
+                 """, [game["current_showing_user"], joincode], commit=True)
+        
+        return {
+            "ok": True
+        }
 
 def allowed_photo_file(filename):
     ext = filename.rsplit(".", 1)[1].lower()
@@ -169,8 +265,24 @@ def advance_round(joincode, game):
         set has_submitted = 0
         """, commit=True)
     
-    # if prompts, go to photos. otherwise, go to prompts
-    new_state = 2 if game["state"] in [1, 3] else 3
+    print(game["current_round"], game["max_rounds"])
+    if game["current_round"] > 2 * game["max_rounds"]:
+        # if exceeded max round, game is over
+        new_state = 4
+
+        # also, reveal the first prompt of each thread
+        db.query(
+            """
+            update submissions
+            set revealed = 1
+            where round = 0 and game_id = ?
+            """, [game["id"]], commit=True)
+    elif game["state"] in [1, 3]:
+        # if was doing prompts, change to photos
+        new_state = 2
+    else:
+        # otherwise, change to prompts
+        new_state = 3
     
     db.query(
         """
@@ -192,7 +304,7 @@ def advance_round(joincode, game):
 #  author.ordering = (participant.ordering + game.round) % (num. participants)
 def get_previous_submission(joincode, participant):
     submission = db.query("""
-    select s.user_id, s.game_id, round, photo_path, prompt from submissions as s
+    select s.user_id, s.game_id, round, photo_path, prompt, root_user from submissions as s
     inner join participants as p on s.user_id = p.user_id and s.game_id = p.game_id
     inner join games as g on s.game_id = g.id
     where g.join_code = ? and s.round = (g.current_round - 1) and p.ordering = (

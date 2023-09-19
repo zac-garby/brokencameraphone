@@ -36,13 +36,23 @@ def register_routes(app: Flask):
         
         return redirect(url_for("index"))
     
-    @app.get("/start-game/<joincode>")
+    @app.post("/start-game/<joincode>")
     @helpers.logged_in
     @helpers.with_participant("participant")
     @helpers.lobby_owner(otherwise="index")
     def start_game_get(joincode, participant):
         if participant is None:
             flash("You attempted to start a game which you're not in!")
+            return redirect("/game/" + joincode)
+        
+        try:
+            max_rounds = int(request.form["max_rounds"])
+        except Exception:
+            flash("Number of rounds wasn't specified.")
+            return redirect("/game/" + joincode)
+        
+        if max_rounds < 1:
+            flash("You need at least one round!")
             return redirect("/game/" + joincode)
         
         participants = db.query(
@@ -56,12 +66,11 @@ def register_routes(app: Flask):
             flash("You need at least two players to start a game.")
             return redirect("/game/" + joincode)
 
-        db.query("update games set state = 1 where join_code = ?",
-                    [joincode],
+        db.query("update games set state = 1, max_rounds = ?, current_showing_user = ? where join_code = ?",
+                    [max_rounds, session["user_id"], joincode],
                     commit=True)
 
         return redirect("/game/" + joincode)
-
 
     @app.get("/new-game")
     @helpers.logged_in
@@ -76,7 +85,10 @@ def register_routes(app: Flask):
             if game is None:
                 break
         
-        db.query("insert into games (join_code, owner_id, state, current_round) values (?, ?, 0, 0)",
+        db.query("""
+                 insert into games (join_code, owner_id, state, current_round, max_rounds)
+                 values (?, ?, 0, 0, 0)
+                 """,
                 [code, session["user_id"]],
                 commit=True)
         
@@ -88,7 +100,7 @@ def register_routes(app: Flask):
     @helpers.with_game("game")
     def api_lobby(joincode, game):
         participants = db.query("""
-        select display_name, users.id = g.owner_id as "is_owner" , p.has_submitted from users
+        select display_name, users.id as "user_id", users.id = g.owner_id as "is_owner", p.has_submitted from users
         inner join participants as p on users.id = p.user_id
         inner join games as g on p.game_id = g.id
         where g.join_code = ?
@@ -98,6 +110,7 @@ def register_routes(app: Flask):
         if participants != None:
             players = [ {
                 "display_name": p["display_name"],
+                "user_id": p["user_id"],
                 "is_owner": p["is_owner"],
                 "has_submitted": p["has_submitted"]
             } for p in participants ]

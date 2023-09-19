@@ -3,12 +3,6 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<nav>
-    <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/logout">Log Out</a></li>
-    </ul>
-</nav>
 <div class="split">
     <div>
         <p>
@@ -20,15 +14,17 @@
         {% for game in games %}
             <li>
                 <a href="/game/{{ game.join_code }}"><span class="code">{{ game.join_code }}</span></a>
-                {% if game.has_submitted or game.state in [0] %}
+                {% if game.has_submitted or game.state in [0, 4] %}
                     {% if game.state == 0 %}
-                    <span class="status">Waiting for players...</span>
+                        <span class="status">Waiting for players...</span>
                     {% elif game.state == 1 %}
-                    <span class="status">Waiting for prompts</span>
+                        <span class="status">Waiting for prompts</span>
                     {% elif game.state == 2 %}
-                    <span class="status">Taking photos!</span>
+                        <span class="status">Taking photos!</span>
                     {% elif game.state == 3 %}
-                    <span class="status">Waiting for prompts</span>
+                        <span class="status">Waiting for prompts</span>
+                    {% elif game.state == 4 %}
+                        <span class="status">Finished</span>
                     {% endif %}
                 {% else %}
                     <span class="status">Waiting for you!</span>

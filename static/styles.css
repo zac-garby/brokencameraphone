@@ -15,25 +15,32 @@ h1.logo {
 
 img.logo {
     width: 275px;
+}
+
+img.logo:hover {
     animation-name: wiggle;
-    animation-duration: 4s;
+    animation-duration: 1.2s;
     animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
+    animation-iteration-count: 2;
     animation-direction: alternate;
 }
 
 @keyframes wiggle {
-    from {
-        transform: rotate(-3deg);
+    0% {
+        transform: rotate(0deg);
     }
 
-    to {
+    50% {
         transform: rotate(4deg);
+    }
+
+    100% {
+        transform: rotate(-3deg);
     }
 }
 
 div.wrapper {
-    width: 700px;
+    width: 850px;
     margin: auto;
     margin-top: 60px;
     left: 0;
@@ -63,7 +70,7 @@ form input {
     font-size: 1rem;
 }
 
-form input[type=text], form input[type=password], form textarea {
+form input[type=text], form input[type=password], form textarea, form input[type=number], button {
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
@@ -71,9 +78,17 @@ form input[type=text], form input[type=password], form textarea {
     border-radius: 5px;
     resize: none;
     font-size: 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
-form input[type=submit] {
+form input[type=number] {
+    width: 60px;
+    font-size: 1.2rem;
+    padding: 5px;
+    text-align: center;
+}
+
+form input[type=submit], button {
     display: block;
     width: 100%;
     padding: 8px 32px;
@@ -83,6 +98,19 @@ form input[type=submit] {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-weight: bold;
+}
+
+form div.row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+form div.row input {
+    display: inline;
+    margin: 0;
 }
 
 div#error {
@@ -137,7 +165,7 @@ p {
     margin-top: 0;
 }
 
-p#prompt {
+p#prompt, p.prompt {
     text-align: center;
     font-weight: bold;
 }
@@ -157,15 +185,16 @@ p.code {
     margin-bottom: 0;
     font-family: "Roboto Mono", monospace;
     letter-spacing: 8px;
+    border-radius: 10px;
 }
 
 li.code, span.code {
     font-weight: normal;
     background-color: rgba(141, 172, 240, 0.1);
     border-radius: 5px;
-    padding: 5px;
-    font-family: monospace;
-    letter-spacing: 2px;
+    padding: 5px 10px;
+    font-family: "Roboto Mono", monospace;
+    letter-spacing: 4px;
 }
 
 ul#players {
@@ -176,7 +205,8 @@ ul#players {
 ul#players li {
     background-color: rgba(141, 172, 240, 0.1);
     color: rgb(22, 37, 71);
-    padding: 10px;
+    border-radius: 10px;
+    padding: 10px 15px;
     font-weight: bold;
     font-size: 1.5rem;
     margin-bottom: 10px;
@@ -186,13 +216,17 @@ ul#players li.submitted {
     color: rgb(22, 37, 71, 0.5);
 }
 
+ul#players li.viewing {
+    color: rgb(20, 66, 145);
+}
+
 ul.lobby-controls {
     list-style: none;
     font-weight: bold;
     padding: 0px;
 }
 
-ul.lobby-controls li {
+ul.lobby-controls li.form {
     display: block;
     width: 100%;
     padding: 8px 16px;
@@ -223,4 +257,40 @@ ul.game-list li {
 span.status {
     font-style: italic;
     font-size: 0.9rem;
+}
+
+ul.gallery-playerlist li {
+    cursor: pointer;
+}
+
+ul.gallery-playerlist li:hover {
+    background-color: rgba(87, 121, 193, 0.209) !important;
+}
+
+ul#submissions {
+    padding-left: 0;
+    list-style: none;
+}
+
+ul#submissions li {
+    background-color: rgba(141, 172, 240, 0.1);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+ul#submissions li h3.username {
+    color: rgb(22, 37, 71);
+    font-size: 1rem;
+    margin-top: 0;
+    font-style: italic;
+}
+
+ul#submissions li p.prompt {
+    margin-bottom: 0;
+    font-size: 1.5rem;
+}
+
+ul#submissions li img.photo {
+    width: 100%;
 }

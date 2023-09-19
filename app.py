@@ -42,6 +42,8 @@ def index():
                          """,
                          [session["user_id"]])
         
-        return render_template("index.html", games=games)
+        return render_template("index.html",
+                               games=games,
+                               user_id=session["user_id"])
     else:
         return redirect(url_for("login_get"))

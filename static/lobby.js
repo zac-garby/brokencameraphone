@@ -3,6 +3,10 @@ var state = undefined
 
 function onLoad() {
     updatePlayerList()
+
+    if (setExamplePrompt) {
+        setExamplePrompt()
+    }
 }
 
 function getJoincode() {
@@ -47,12 +51,15 @@ function renderPlayerList() {
     for (var player of playerList) {
         var li = document.createElement("li")
         li.innerHTML = player["display_name"]
+
         if (player["is_owner"]) {
             li.innerHTML = "👑 " + li.innerHTML
         }
+
         if (player["has_submitted"] > 0) {
             li.classList.add("submitted")
         }
+
         ul.appendChild(li)
     }
 }

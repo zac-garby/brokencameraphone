@@ -13,14 +13,19 @@ CREATE TABLE games (
     owner_id INTEGER NOT NULL,
 
     current_round INTEGER NOT NULL,
+    max_rounds INTEGER NOT NULL,
+
+    current_showing_user INTEGER DEFAULT 0 NOT NULL,
 
     -- 0: in lobby
     -- 1: doing initial prompts
     -- 2: doing photos
     -- 3: doing prompts from photos
+    -- 4: game finished
     state INTEGER,
 
-    FOREIGN KEY (owner_id) REFERENCES users (id)
+    FOREIGN KEY (owner_id) REFERENCES users (id),
+    FOREIGN KEY (current_showing_user) REFERENCES users (id)
 );
 
 DROP TABLE IF EXISTS participants;
@@ -39,10 +44,21 @@ CREATE TABLE participants (
 
 DROP TABLE IF EXISTS submissions;
 CREATE TABLE submissions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
     user_id INTEGER NOT NULL,
     game_id INTEGER NOT NULL,
 
+    -- the round which this submission was from.
     round INTEGER NOT NULL,
+
+    -- the id of the user from whom this submission
+    -- is originally based.
+    root_user INTEGER NOT NULL,
+
+    -- whether this submission has been revealed yet
+    -- in the post-game gallery thing.
+    revealed INTEGER DEFAULT 0 NOT NULL,
 
     -- either photo_path or prompt is NULL, depending
     -- on whether this round was a photo or prompt round.
@@ -50,5 +66,6 @@ CREATE TABLE submissions (
     prompt TEXT,
 
     FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (game_id) REFERENCES games (id)
+    FOREIGN KEY (game_id) REFERENCES games (id),
+    FOREIGN KEY (root_user) REFERENCES users (id)
 );

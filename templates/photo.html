@@ -7,13 +7,6 @@
 {% endblock %}
 
 {% block content %}
-<nav>
-    <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/logout">Log Out</a></li>
-        <li class="code">{{ game["join_code"] }}</li>
-    </ul>
-</nav>
 <div class="split">
     <div>
         <h2>Take your photo!</h2>
@@ -37,11 +30,6 @@
             <input type="submit" value="Send photo">
         </form>
         {% endif %}
-        <ul class="lobby-controls">
-            <!-- <li>
-                <a href="/leave-game/{{ game['join_code'] }}">Leave Lobby</a>
-            </li> -->
-        </ul>
     </div>
     <div>
         <h2>Players</h2>

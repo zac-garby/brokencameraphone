@@ -19,6 +19,17 @@
                 </a>
             </h1>
         </header>
+        {% if user_id %}
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/logout">Log Out</a></li>
+                    {% if game %}
+                        <li class="code">{{ game["join_code"] }}</li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
         {% with messages = get_flashed_messages() %}
             {% if messages %}
             <ul class="flashes">

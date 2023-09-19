@@ -7,13 +7,6 @@
 {% endblock %}
 
 {% block content %}
-<nav>
-    <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/logout">Log Out</a></li>
-        <li class="code">{{ game["join_code"] }}</li>
-    </ul>
-</nav>
 <div class="split">
     <div>
         <h2>Lobby</h2>
@@ -26,10 +19,16 @@
         <ul class="lobby-controls">
             {% if is_owner %}
             <li>
-                <a href="/start-game/{{ game['join_code'] }}">👑 Start Game</a>
+                <form action="/start-game/{{ game['join_code'] }}" method="post">
+                    <div class="row">
+                        <label for="max_rounds">Number of rounds:</label>
+                        <input type="number" name="max_rounds" id="max_rounds" value="4" min="1">
+                    </div>
+                    <input type="submit" value="👑 Start Game">
+                </form>
             </li>
             {% else %}
-            <li>
+            <li class="form">
                 <a href="/leave-game/{{ game['join_code'] }}">Leave Lobby</a>
             </li>
             {% endif %}
