@@ -126,6 +126,7 @@ ul.flashes {
 
 ul.flashes li {
     background-color: rgba(141, 172, 240, 0.1);
+    border-radius: 10px;
     color: rgb(22, 37, 71);
     padding: 10px;
     margin-bottom: 15px;
@@ -149,6 +150,9 @@ nav ul {
     padding: 10px;
     font-weight: bold;
     background-color: rgba(150, 150, 150, 0.1);
+    border-radius: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 nav ul * {
