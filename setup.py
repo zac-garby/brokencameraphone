@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name="brokencameraphone",
@@ -6,6 +6,6 @@ setup(
     description="A game.",
     author="Zac Garby",
     author_email="me@zacgarby.co.uk",
-    packages=["brokencameraphone"],
+    packages=find_packages(),
     install_requires=["Flask", "bcrypt"]
 )
