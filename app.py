@@ -1,4 +1,5 @@
 import os
+import secrets
 import lib.db as db
 
 from lib import users, lobby, game
@@ -11,7 +12,7 @@ from werkzeug.utils import redirect
 app = Flask(__name__)
 
 app.config.from_mapping(
-    SECRET_KEY="dev",
+    SECRET_KEY=secrets.token_hex(),
     DATABASE=os.path.join(app.instance_path, "bcp.sqlite"),
     UPLOAD_FOLDER=os.path.join(app.instance_path, "photos")
 )
