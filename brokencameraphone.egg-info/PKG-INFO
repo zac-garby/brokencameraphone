@@ -1,8 +1,0 @@
-Metadata-Version: 2.1
-Name: brokencameraphone
-Version: 1.0
-Summary: A game.
-Author: Zac Garby
-Author-email: me@zacgarby.co.uk
-Requires-Dist: Flask
-Requires-Dist: bcrypt
