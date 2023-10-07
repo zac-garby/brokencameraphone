@@ -101,6 +101,11 @@ form input[type=submit], button {
     font-weight: bold;
 }
 
+form p {
+    font-weight: normal;
+    font-size: 0.8rem;
+}
+
 form div.row {
     display: flex;
     align-items: center;
@@ -117,11 +122,14 @@ div#error {
     background-color: rgba(200, 0, 57, 0.1);
     padding: 10px;
     font-weight: bold;
+    margin-bottom: 15px;
+    border-radius: 10px;
 }
 
 ul.flashes {
     list-style: none;
     padding-left: 0;
+    padding: 0 10px;
 }
 
 ul.flashes li {

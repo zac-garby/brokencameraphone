@@ -26,7 +26,7 @@
         </p>
         <p>Go out into the wide world and take a photo of something which this reminds you of!</p>
         <form action="/submit-photo/{{ game['join_code'] }}" method="post" enctype="multipart/form-data">
-            <input type="file" name="photo" id="photo" accept="image/*" capture="environment">
+            <input type="file" name="photo" id="photo" accept="image/*">
             <input type="submit" value="Send photo">
         </form>
         {% endif %}
