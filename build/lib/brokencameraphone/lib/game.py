@@ -306,6 +306,7 @@ def assign_chain_links(joincode, round_num):
     """, [joincode])
 
     user_ids = list(map(lambda row: row["user_id"], froms)) # type: ignore
+    user_ids_orig = list(map(lambda row: row["user_id"], froms)) # type: ignore
     print(user_ids)
 
     while True:
@@ -322,8 +323,7 @@ def assign_chain_links(joincode, round_num):
         if not in_place:
             break
     
-    for (f_, t) in enumerate(user_ids):
-        f = f_ + 1
+    for (f, t) in zip(user_ids_orig, user_ids):
         print(f"from {f} to {t}")
 
         db.query("""
