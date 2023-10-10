@@ -339,7 +339,7 @@ def get_previous_submission(joincode, participant):
     from submissions as s
 	inner join participants as p on p.user_id = s.user_id
     inner join games as g on s.game_id = g.id
-    inner join chain_links as l on l.round = g.current_round and l.to_id = ? and l.from_id = s.user_id
+    inner join chain_links as l on l.round = g.current_round and l.to_id = ? and l.from_id = s.user_id and l.game_id = g.id
     where g.join_code = ? and s.round = (g.current_round - 1)
     """, [participant["user_id"], joincode], one=True)
 
