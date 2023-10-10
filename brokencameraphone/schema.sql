@@ -1,10 +1,10 @@
-DROP TABLE IF EXISTS users;
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE NOT NULL,
-    display_name TEXT NOT NULL,
-    password CHAR(60) NOT NULL
-);
+-- DROP TABLE IF EXISTS users;
+-- CREATE TABLE users (
+--     id INTEGER PRIMARY KEY AUTOINCREMENT,
+--     email TEXT UNIQUE NOT NULL,
+--     display_name TEXT NOT NULL,
+--     password CHAR(60) NOT NULL
+-- );
 
 DROP TABLE IF EXISTS games;
 CREATE TABLE games (
@@ -68,4 +68,22 @@ CREATE TABLE submissions (
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (game_id) REFERENCES games (id),
     FOREIGN KEY (root_user) REFERENCES users (id)
+);
+
+DROP TABLE IF EXISTS chain_links;
+CREATE TABLE chain_links (
+    -- the chain link specifies the prompt which to_id receives
+    -- when games.current_round = round.
+    -- the prompt is taken from from_id's submission from the
+    -- previous round (round - 1).
+
+    round INTEGER NOT NULL,
+
+    from_id INTEGER NOT NULL,
+    to_id INTEGER NOT NULL,
+
+    FOREIGN KEY (from_id) REFERENCES users (id),
+    FOREIGN KEY (to_id) REFERENCES users (id),
+
+    PRIMARY KEY (round, from_id, to_id)
 );

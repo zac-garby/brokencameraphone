@@ -29,6 +29,9 @@
                     <li><a href="/logout">Log Out</a></li>
                     {% if game %}
                         <li class="code">{{ game["join_code"] }}</li>
+                        {% if game['current_round'] // 2 < game['max_rounds'] %}
+                        <li class="round">Round {{ 1 + game['current_round'] // 2 }}/{{ game['max_rounds'] }}</li>
+                        {% endif %}
                     {% endif %}
                 </ul>
             </nav>

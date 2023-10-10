@@ -1,4 +1,5 @@
 import os
+import random
 import brokencameraphone.lib.db as db
 import brokencameraphone.lib.helpers as helpers
 
@@ -269,7 +270,6 @@ def advance_round(joincode, game):
         set has_submitted = 0
         """, commit=True)
     
-    print(game["current_round"], game["max_rounds"])
     if game["current_round"] > 2 * game["max_rounds"] - 2:
         # if exceeded max round, game is over
         new_state = 4
@@ -283,9 +283,11 @@ def advance_round(joincode, game):
             """, [game["id"]], commit=True)
     elif game["state"] in [1, 3]:
         # if was doing prompts, change to photos
+        assign_chain_links(joincode, game["current_round"] + 1)
         new_state = 2
     else:
         # otherwise, change to prompts
+        assign_chain_links(joincode, game["current_round"] + 1)
         new_state = 3
     
     db.query(
@@ -296,28 +298,49 @@ def advance_round(joincode, game):
         where join_code = ?
         """, [new_state, joincode], commit=True)
 
+def assign_chain_links(joincode, round_num):
+    froms = db.query("""
+    select user_id from participants as p
+    inner join games on p.game_id = games.id
+    where games.join_code = ?
+    """, [joincode])
+
+    user_ids = list(map(lambda row: row["user_id"], froms)) # type: ignore
+    print(user_ids)
+
+    while True:
+        random.shuffle(user_ids)
+        print(user_ids)
+        in_place = False
+
+        for (f_, t) in enumerate(user_ids):
+            f = f_ + 1
+            if f == t:
+                in_place = True
+                break
+        
+        if not in_place:
+            break
+    
+    for (f_, t) in enumerate(user_ids):
+        f = f_ + 1
+        print(f"from {f} to {t}")
+
+        db.query("""
+        insert into chain_links (round, from_id, to_id)
+        values (?, ?, ?)
+        """, [round_num, f, t], commit=True)
+
 # gets the prompt (or photo prompt) which a player should be
 # prompted with in the current round.
-# 
-# each participant has an "ordering", and we use this to
-# decide which participant's prompt each user (the player)
-# should be given in each round (the author)
-# 
-# the ordering of the author is calculated as:
-# 
-#  author.ordering = (1 + o + r + (r // (P - 1))) % P
-# 
-# where o = ordering, r = current round, P = num. participants
 def get_previous_submission(joincode, participant):
     submission = db.query("""
-    select s.user_id, s.game_id, round, photo_path, prompt, root_user
+    select s.user_id, s.game_id, s.round, photo_path, prompt, root_user
     from submissions as s
-    inner join participants as p on s.user_id = p.user_id and s.game_id = p.game_id
+	inner join participants as p on p.user_id = s.user_id
     inner join games as g on s.game_id = g.id
-    where g.join_code = ? and s.round = (g.current_round - 1) and p.ordering = (
-        select ((1 + ? + g.current_round + (g.current_round / ((select count(*) as pop from participants where game_id = games.id) - 1))) % (select count(*) as pop from participants where game_id = games.id)) as ordering
-        from games where join_code = ?
-    )
-    """, [joincode, participant["ordering"], joincode], one=True)
+    inner join chain_links as l on l.round = g.current_round and l.to_id = ? and l.from_id = s.user_id
+    where g.join_code = ? and s.round = (g.current_round - 1)
+    """, [participant["user_id"], joincode], one=True)
 
     return submission

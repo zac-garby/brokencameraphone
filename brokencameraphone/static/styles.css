@@ -209,6 +209,11 @@ li.code, span.code {
     letter-spacing: 4px;
 }
 
+li.round {
+    font-weight: normal;
+    padding: 5px 10px;
+}
+
 ul#players {
     list-style: none;
     padding-left: 0;
