@@ -283,11 +283,11 @@ def advance_round(joincode, game):
             """, [game["id"]], commit=True)
     elif game["state"] in [1, 3]:
         # if was doing prompts, change to photos
-        assign_chain_links(joincode, game["current_round"] + 1)
+        assign_chain_links(joincode, game["current_round"] + 1, game["id"])
         new_state = 2
     else:
         # otherwise, change to prompts
-        assign_chain_links(joincode, game["current_round"] + 1)
+        assign_chain_links(joincode, game["current_round"] + 1, game["id"])
         new_state = 3
     
     db.query(
@@ -298,7 +298,7 @@ def advance_round(joincode, game):
         where join_code = ?
         """, [new_state, joincode], commit=True)
 
-def assign_chain_links(joincode, round_num):
+def assign_chain_links(joincode, round_num, game_id):
     froms = db.query("""
     select user_id from participants as p
     inner join games on p.game_id = games.id
@@ -327,9 +327,9 @@ def assign_chain_links(joincode, round_num):
         print(f"from {f} to {t}")
 
         db.query("""
-        insert into chain_links (round, from_id, to_id)
-        values (?, ?, ?)
-        """, [round_num, f, t], commit=True)
+        insert into chain_links (game_id, round, from_id, to_id)
+        values (?, ?, ?, ?)
+        """, [game_id, round_num, f, t], commit=True)
 
 # gets the prompt (or photo prompt) which a player should be
 # prompted with in the current round.

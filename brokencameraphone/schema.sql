@@ -77,13 +77,15 @@ CREATE TABLE chain_links (
     -- the prompt is taken from from_id's submission from the
     -- previous round (round - 1).
 
+    game_id INTEGER NOT NULL,
     round INTEGER NOT NULL,
 
     from_id INTEGER NOT NULL,
     to_id INTEGER NOT NULL,
 
+    FOREIGN KEY (game_id) REFERENCES games (id),
     FOREIGN KEY (from_id) REFERENCES users (id),
     FOREIGN KEY (to_id) REFERENCES users (id),
 
-    PRIMARY KEY (round, from_id, to_id)
+    PRIMARY KEY (game_id, round, from_id, to_id)
 );
