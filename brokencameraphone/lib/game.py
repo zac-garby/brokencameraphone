@@ -314,8 +314,7 @@ def assign_chain_links(joincode, round_num, game_id):
         print(user_ids)
         in_place = False
 
-        for (f_, t) in enumerate(user_ids):
-            f = f_ + 1
+        for (f, t) in zip(user_ids_orig, user_ids):
             if f == t:
                 in_place = True
                 break
