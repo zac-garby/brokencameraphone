@@ -9,8 +9,8 @@
 {% block content %}
 <div class="split">
     <div>
-        <h2>Here's a photo.</h2>
         {% if participant.has_submitted == 1 %}
+        <h2>Done!</h2>
         <p>
             Thanks for the prompt! Now just to wait for the others.
         </p>
@@ -18,13 +18,14 @@
             This may take a while. Remember - some people are lazy.
         </p>
         {% else %}
+        <h2>Here's a photo.</h2>
         <a href="/photo/{{ previous_submission['photo_path'] }}">
             <img id="prompt" src="/photo/{{ previous_submission['photo_path'] }}">
         </a>
         <p>What do you think the prompt might have been for this photo?</p>
         <form action="/submit-prompt/{{ game['join_code'] }}" method="post" enctype="multipart/form-data">
             <textarea name="prompt" id="prompt" rows="3" placeholder="An example prompt here"></textarea>
-            <input type="submit" value="Send photo">
+            <input type="submit" value="Send prompt">
         </form>
         {% endif %}
     </div>
