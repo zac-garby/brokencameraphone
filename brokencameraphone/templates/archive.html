@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="split">
+    <div>
+        <p>
+            Welcome to the <b>archives</b>. Here, you can view all your old games, so they don't clutter up the homepage.
+        </p>
+        {% if games %}
+        <h3>Finished games:</h3>
+        <ul class="game-list">
+        {% for game in games %}
+            {% if game.state == 4 %}
+            <li>
+                <a href="/game/{{ game.join_code }}"><span class="code">{{ game.join_code }}</span></a>
+                <span class="status">Finished</span>
+            </li>
+            {% endif %}
+        {% endfor %}
+        <li>
+            <a href="/">View current games</a>
+        </li>
+        </ul>
+        {% endif %}
+    </div>
+    <div>
+        <form action="/new-game" method="get">
+            <h2>New Game</h2>
+            <p>
+                Make a new game to play with your friends.
+            </p>
+            <input type="submit" value="Create Lobby">
+        </form>
+        <form action="/game" method="post">
+            <h2>Join Game</h2>
+            <p>
+                Join an existing game using a friend's join code.
+            </p>
+            <input type="text" name="join-code" id="join-code" placeholder="Join Code">
+            <input type="submit" value="Join Game">
+        </form>
+    </div>
+</div>
+{% endblock %}

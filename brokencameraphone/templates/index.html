@@ -9,9 +9,10 @@
             Welcome to <strong>Broken Cameraphone</strong>! The game which is totally not a copy of <a href="https://www.brokenpicturephone.com">broken picturephone</a>.
         </p>
         {% if games %}
-        <h3>Your Games:</h3>
+        <h3>Current games:</h3>
         <ul class="game-list">
         {% for game in games %}
+            {% if game.state != 4 %}
             <li>
                 <a href="/game/{{ game.join_code }}"><span class="code">{{ game.join_code }}</span></a>
                 {% if game.has_submitted or game.state in [0, 4] %}
@@ -30,7 +31,11 @@
                     <span class="status">Waiting for you!</span>
                 {% endif %}
             </li>
+            {% endif %}
         {% endfor %}
+        <li>
+            <a href="/archive">View finished games</a>
+        </li>
         </ul>
         {% endif %}
     </div>

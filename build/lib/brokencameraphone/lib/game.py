@@ -59,6 +59,20 @@ def register_routes(app: Flask):
                 previous_submission=get_previous_submission(joincode, participant),
                 user_id=session["user_id"],
                 is_owner=game['owner_id'] == session["user_id"]) # type: ignore
+    
+    @app.get("/archive")
+    @helpers.logged_in
+    def get_archive():
+        games = db.query("""
+            select * from games
+            inner join participants as p on games.id = p.game_id
+            where p.user_id = ?
+                         """,
+                         [session["user_id"]])
+    
+        return render_template("archive.html",
+                               games=games,
+                               user_id=session["user_id"])
         
     @app.post("/submit-prompt/<joincode>")
     @helpers.logged_in
@@ -314,8 +328,7 @@ def assign_chain_links(joincode, round_num, game_id):
         print(user_ids)
         in_place = False
 
-        for (f_, t) in enumerate(user_ids):
-            f = f_ + 1
+        for (f, t) in zip(user_ids_orig, user_ids):
             if f == t:
                 in_place = True
                 break
@@ -339,7 +352,7 @@ def get_previous_submission(joincode, participant):
     from submissions as s
 	inner join participants as p on p.user_id = s.user_id
     inner join games as g on s.game_id = g.id
-    inner join chain_links as l on l.round = g.current_round and l.to_id = ? and l.from_id = s.user_id
+    inner join chain_links as l on l.round = g.current_round and l.to_id = ? and l.from_id = s.user_id and l.game_id = g.id
     where g.join_code = ? and s.round = (g.current_round - 1)
     """, [participant["user_id"], joincode], one=True)
 

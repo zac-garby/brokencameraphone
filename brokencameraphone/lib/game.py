@@ -59,6 +59,20 @@ def register_routes(app: Flask):
                 previous_submission=get_previous_submission(joincode, participant),
                 user_id=session["user_id"],
                 is_owner=game['owner_id'] == session["user_id"]) # type: ignore
+    
+    @app.get("/archive")
+    @helpers.logged_in
+    def get_archive():
+        games = db.query("""
+            select * from games
+            inner join participants as p on games.id = p.game_id
+            where p.user_id = ?
+                         """,
+                         [session["user_id"]])
+    
+        return render_template("archive.html",
+                               games=games,
+                               user_id=session["user_id"])
         
     @app.post("/submit-prompt/<joincode>")
     @helpers.logged_in
