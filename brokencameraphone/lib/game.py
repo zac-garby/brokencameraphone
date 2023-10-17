@@ -275,14 +275,15 @@ def all_submitted(joincode):
         """,
         [joincode])
     
-    return not_submitted == None or len(not_submitted) == 0
+    return not_submitted != None and len(not_submitted) == 0
 
 def advance_round(joincode, game):
     db.query(
         """
         update participants
         set has_submitted = 0
-        """, commit=True)
+        where game_id = ?
+        """, [game["id"]], commit=True)
     
     if game["current_round"] > 2 * game["max_rounds"] - 2:
         # if exceeded max round, game is over
