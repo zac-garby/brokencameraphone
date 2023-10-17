@@ -38,8 +38,16 @@ def with_participant(param):
 def with_game(param):
     def wrapper(handler):
         def new_handler(*args, **kw):
-            game = db.query("select * from games where join_code = ?",
-                            [kw["joincode"]], one=True)
+            game = db.query("""
+            select
+                games.*,
+                case
+                    when archived.user_id is not null then 1 else 0
+                end as is_archived
+            from games
+            left join archived on games.id = archived.game_id and archived.user_id = ?
+            where join_code = ?
+                            """, [session["user_id"], kw["joincode"]], one=True)
             
             if game is None:
                 flash(f"The game {kw['joincode']} does not exist.")

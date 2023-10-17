@@ -89,3 +89,14 @@ CREATE TABLE chain_links (
 
     PRIMARY KEY (game_id, round, from_id, to_id)
 );
+
+DROP TABLE IF EXISTS archived;
+CREATE TABLE archived (
+    user_id INTEGER NOT NULL,
+    game_id INTEGER NOT NULL,
+
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (game_id) REFERENCES games (id),
+
+    PRIMARY KEY (user_id, game_id)
+);

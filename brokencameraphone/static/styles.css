@@ -227,10 +227,12 @@ ul#players li {
     font-weight: bold;
     font-size: 1.5rem;
     margin-bottom: 10px;
+    overflow: hidden;
 }
 
 ul#players li.submitted {
     color: rgb(22, 37, 71, 0.5);
+    background-color: rgba(141, 172, 240, 0.05);
 }
 
 ul#players li.viewing {
@@ -243,7 +245,7 @@ ul.lobby-controls {
     padding: 0px;
 }
 
-ul.lobby-controls li.form {
+li.form {
     display: block;
     width: 100%;
     padding: 8px 16px;
@@ -256,7 +258,13 @@ ul.lobby-controls li.form {
     margin-bottom: 10px;
 }
 
-ul.lobby-controls a {
+li.form.minor {
+    font-size: 0.8rem;
+    font-weight: normal;
+    text-align: center;
+}
+
+ul.lobby-controls a, li.form a {
     display: block;
     text-decoration: none;
     color: white;

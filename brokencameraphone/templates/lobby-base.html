@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Game{% endblock %}
+
+{% block head %}
+<script src="/static/lobby.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="split">
+    <div>
+        {% block lobby_content %}{% endblock %}
+        <ul class="lobby-controls">
+            {% block lobby_controls %}{% endblock %}
+        </ul>
+    </div>
+    <div>
+        <h2>Players</h2>
+        <ul id="players"></ul>
+        <li class="form minor">
+            {% if game.is_archived %}
+                <a href="/set-archived/{{ game['join_code'] }}/false">Unarchive this game</a>
+            {% else %}
+            <a href="/set-archived/{{ game['join_code'] }}/true">Archive this game</a>
+            {% endif %}
+        </li>
+    </div>
+</div>
+{% endblock %}

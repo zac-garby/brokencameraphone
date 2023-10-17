@@ -1,36 +1,26 @@
-{% extends "base.html" %}
-
-{% block title %}Game{% endblock %}
+{% extends "lobby-base.html" %}
 
 {% block head %}
 <script src="/static/initial-prompts.js"></script>
 <script src="/static/lobby.js"></script>
 {% endblock %}
 
-{% block content %}
-<div class="split">
-    <div>
-        <h2>Initial Prompts</h2>
-        {% if participant.has_submitted == 1 %}
-        <p>
-            Thanks for the prompt! Now just to wait for the others.
-        </p>
-        <p>
-            If you're in a voice chat, make annoying noises at them to speed them up.
-        </p>
-        {% else %}
-        <p>
-            Enter an initial prompt to give to somebody else below. This can be absolutely anything!
-        </p>
-        <form action="/submit-prompt/{{ game['join_code'] }}" method="post">
-            <textarea name="prompt" id="prompt" rows="3"></textarea>
-            <input type="submit" value="Send prompt">
-        </form>
-        {% endif %}
-    </div>
-    <div>
-        <h2>Players</h2>
-        <ul id="players"></ul>
-    </div>
-</div>
+{% block lobby_content %}
+<h2>Initial Prompts</h2>
+{% if participant.has_submitted == 1 %}
+<p>
+    Thanks for the prompt! Now just to wait for the others.
+</p>
+<p>
+    If you're in a voice chat, make annoying noises at them to speed them up.
+</p>
+{% else %}
+<p>
+    Enter an initial prompt to give to somebody else below. This can be absolutely anything!
+</p>
+<form action="/submit-prompt/{{ game['join_code'] }}" method="post">
+    <textarea name="prompt" id="prompt" rows="3"></textarea>
+    <input type="submit" value="Send prompt">
+</form>
+{% endif %}
 {% endblock %}

@@ -21,7 +21,7 @@ def register_routes(app: Flask):
             return redirect(url_for("index"))
         
         participant = db.query("select * from participants where user_id = ? and game_id = ?",
-                            [session["user_id"], game["id"]], one=True) # type: ignore
+            [session["user_id"], game["id"]], one=True) # type: ignore
         
         state = int(game["state"]) # type: ignore
 
@@ -59,20 +59,6 @@ def register_routes(app: Flask):
                 previous_submission=get_previous_submission(joincode, participant),
                 user_id=session["user_id"],
                 is_owner=game['owner_id'] == session["user_id"]) # type: ignore
-    
-    @app.get("/archive")
-    @helpers.logged_in
-    def get_archive():
-        games = db.query("""
-            select * from games
-            inner join participants as p on games.id = p.game_id
-            where p.user_id = ?
-                         """,
-                         [session["user_id"]])
-    
-        return render_template("archive.html",
-                               games=games,
-                               user_id=session["user_id"])
         
     @app.post("/submit-prompt/<joincode>")
     @helpers.logged_in
@@ -262,6 +248,24 @@ def register_routes(app: Flask):
             "ok": True
         }
 
+    @app.get("/set-archived/<joincode>/<val>")
+    @helpers.logged_in
+    @helpers.with_game("game")
+    def get_api_set_archived(joincode, val, game):
+        print(joincode, val, game["is_archived"])
+        if val == "true" and not game["is_archived"]:
+            db.query("""
+            insert into archived (user_id, game_id)
+            values (?, ?)
+                     """, [session["user_id"], game["id"]], commit=True)
+        elif val == "false" and game["is_archived"]:
+            db.query("""
+            delete from archived
+            where user_id = ? and game_id = ?
+                     """, [session["user_id"], game["id"]], commit=True)
+        
+        return redirect("/game/" + joincode)
+
 def allowed_photo_file(filename):
     ext = filename.rsplit(".", 1)[1].lower()
     return ("." in filename and ext in ALLOWED_EXTENSIONS), ext
@@ -282,7 +286,8 @@ def advance_round(joincode, game):
         """
         update participants
         set has_submitted = 0
-        """, commit=True)
+        where game_id = ?
+        """, [game["id"]], commit=True)
     
     if game["current_round"] > 2 * game["max_rounds"] - 2:
         # if exceeded max round, game is over

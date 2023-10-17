@@ -1,6 +1,4 @@
-{% extends "base.html" %}
-
-{% block title %}Game{% endblock %}
+{% extends "lobby-base.html" %}
 
 {% block head %}
 <script>
@@ -10,32 +8,25 @@
 {% endblock %}
 
 {% block content %}
-<div class="split">
-    <div>
-        <h2>Game Over</h2>
-        {% if is_owner %}
-            <p>
-                And that's it! Let's have a look at what you came up with.
-            </p>
-            <button id="advance" onclick="advance()">Show next...</button>
-        {% else %}
-            <p>
-                And that's it! Let's have a look at what you came up with. Sit back and let the lobby's owner work the controls.
-            </p>
-        {% endif %}
-        <ul id="submissions"></ul>
-    </div>
-    <div>
-        <h2>Players</h2>
-        <ul id="players"></ul>
-        {% if is_owner %}
-        <p>
-            As the game master, you're going to be in charge of the gallery controls.
-        </p>
-        <p>
-            Click the names above to cycle between prompts, and press "Show next..." to advance to the next submission.
-        </p>
-        {% endif %}
-    </div>
-</div>
+<h2>Game Over</h2>
+{% if is_owner %}
+    <p>
+        And that's it! Let's have a look at what you came up with.
+    </p>
+    <button id="advance" onclick="advance()">Show next...</button>
+{% else %}
+    <p>
+        And that's it! Let's have a look at what you came up with. Sit back and let the lobby's owner work the controls.
+    </p>
+{% endif %}
+<ul id="submissions"></ul>
+
+{% if is_owner %}
+<p>
+    As the game master, you're going to be in charge of the gallery controls.
+</p>
+<p>
+    Click the names above to cycle between prompts, and press "Show next..." to advance to the next submission.
+</p>
+{% endif %}
 {% endblock %}

@@ -1,7 +1,8 @@
 @media screen and (max-width: 850px) {
     div.wrapper {
         width: 100%;
-        padding: 20px;
+        padding: 8px;
+        margin-top: 25px;
     }
 
     img.logo {
@@ -13,4 +14,16 @@
         display: flex;
         flex-direction: column-reverse;
     }    
+}
+
+@media screen and (max-width: 550px) {
+    nav ul li {
+        display: list-item;
+        padding: 5px;
+        margin-bottom: 5px;
+    }
+
+    nav ul li:last-child {
+        margin-bottom: 0;
+    }
 }

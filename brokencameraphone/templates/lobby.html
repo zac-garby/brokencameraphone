@@ -1,45 +1,32 @@
-{% extends "base.html" %}
+{% extends "lobby-base.html" %}
 
-{% block title %}Game{% endblock %}
-
-{% block head %}
-<script src="/static/lobby.js"></script>
+{% block lobby_content %}
+<h2>Lobby</h2>
+<p>
+    Currently waiting for players to join. Invite your friends using the code below:
+</p>
+<p class="code">
+    {{ game["join_code"] }}
+</p>
 {% endblock %}
 
-{% block content %}
-<div class="split">
-    <div>
-        <h2>Lobby</h2>
+{% block lobby_controls %}
+{% if is_owner %}
+<li>
+    <form action="/start-game/{{ game['join_code'] }}" method="post">
+        <div class="row">
+            <label for="max_rounds">Number of rounds:</label>
+            <input type="number" name="max_rounds" id="max_rounds" value="4" min="1">
+        </div>
         <p>
-            Currently waiting for players to join. Invite your friends using the code below:
+            Each round consists of one prompt and one photo. The game will always end on a photo round.
         </p>
-        <p class="code">
-            {{ game["join_code"] }}
-        </p>
-        <ul class="lobby-controls">
-            {% if is_owner %}
-            <li>
-                <form action="/start-game/{{ game['join_code'] }}" method="post">
-                    <div class="row">
-                        <label for="max_rounds">Number of rounds:</label>
-                        <input type="number" name="max_rounds" id="max_rounds" value="4" min="1">
-                    </div>
-                    <p>
-                        Each round consists of one prompt and one photo. The game will always end on a photo round.
-                    </p>
-                    <input type="submit" value="👑 Start Game">
-                </form>
-            </li>
-            {% else %}
-            <li class="form">
-                <a href="/leave-game/{{ game['join_code'] }}">Leave Lobby</a>
-            </li>
-            {% endif %}
-        </ul>
-    </div>
-    <div>
-        <h2>Players</h2>
-        <ul id="players"></ul>
-    </div>
-</div>
+        <input type="submit" value="👑 Start Game">
+    </form>
+</li>
+{% else %}
+<li class="form">
+    <a href="/leave-game/{{ game['join_code'] }}">Leave Lobby</a>
+</li>
+{% endif %}
 {% endblock %}

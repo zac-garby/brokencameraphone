@@ -12,7 +12,7 @@
         <h3>Current games:</h3>
         <ul class="game-list">
         {% for game in games %}
-            {% if game.state != 4 %}
+            {% if game.is_archived == 0 %}
             <li>
                 <a href="/game/{{ game.join_code }}"><span class="code">{{ game.join_code }}</span></a>
                 {% if game.has_submitted or game.state in [0, 4] %}
@@ -34,7 +34,7 @@
             {% endif %}
         {% endfor %}
         <li>
-            <a href="/archive">View finished games</a>
+            <a href="/archive">View archived games</a>
         </li>
         </ul>
         {% endif %}
