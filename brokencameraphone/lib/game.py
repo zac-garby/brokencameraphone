@@ -275,7 +275,7 @@ def all_submitted(joincode):
         """,
         [joincode])
     
-    return not_submitted != None and len(not_submitted) == 0
+    return not_submitted == None or len(not_submitted) == 0
 
 def advance_round(joincode, game):
     db.query(
