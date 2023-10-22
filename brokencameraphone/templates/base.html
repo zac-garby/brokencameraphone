@@ -26,6 +26,7 @@
             <nav>
                 <ul>
                     <li><a href="/">Home</a></li>
+                    <li><a href="/about">About</a></li>
                     <li><a href="/logout">Log Out</a></li>
                     {% if game %}
                         <li class="code">{{ game["join_code"] }}</li>
@@ -33,6 +34,13 @@
                         <li class="round">Round {{ 1 + game['current_round'] // 2 }}/{{ game['max_rounds'] }}</li>
                         {% endif %}
                     {% endif %}
+                </ul>
+            </nav>
+        {% else %}
+            <nav>
+                <ul>
+                    <li><a href="/login">Log in</a></li>
+                    <li><a href="/about">About</a></li>
                 </ul>
             </nav>
         {% endif %}

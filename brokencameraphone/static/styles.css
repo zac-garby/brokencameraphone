@@ -54,7 +54,7 @@ div.wrapper {
 h1, h2, h3 {
     color: rgb(200, 0, 57);
     margin-top: 0;
-    margin-bottom: 12px;
+    margin-bottom: 5px;
 }
 
 form {
@@ -142,6 +142,16 @@ ul.flashes li {
 
 ul.flashes li:first-child {
     margin-bottom: 0;
+}
+
+article > p, article > div {
+    padding: 0 10px;
+}
+
+div.multicol {
+    column-count: 2;
+    font-size: 1rem;
+    text-align: justify;
 }
 
 div.split {

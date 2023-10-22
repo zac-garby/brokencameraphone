@@ -33,6 +33,7 @@ def register_routes(app: Flask):
             session["email"] = email
             session["user_id"] = int(user["id"]) # type: ignore
             flash("You were successfully logged in.")
+            session.permanent = True
         else:
             return render_template("login.html", error="That's the wrong password!")
         
