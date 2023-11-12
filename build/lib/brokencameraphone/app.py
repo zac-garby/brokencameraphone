@@ -55,6 +55,14 @@ def index():
                                user_id=session["user_id"])
     else:
         return redirect(url_for("login_get"))
+    
+@app.get("/about")
+def get_about():
+    if "user_id" in session:
+        return render_template("about.html",
+                            user_id=session["user_id"])
+    else:
+        return render_template("about.html")
 
 @app.get("/archive")
 @helpers.logged_in

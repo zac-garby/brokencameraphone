@@ -332,13 +332,26 @@ def assign_chain_links(joincode, round_num, game_id):
         random.shuffle(user_ids)
         print(user_ids)
         in_place = False
+        old_place = False
 
+        # check if any prompts go back to the same player (in_place)
         for (f, t) in zip(user_ids_orig, user_ids):
             if f == t:
                 in_place = True
                 break
         
-        if not in_place:
+        # check if any prompts from two players back go to the same player (old_place)
+        for (f, t) in zip(user_ids_orig, user_ids):
+            f2 = db.query("""
+            select from_id from chain_links
+            where game_id = ? and round = ? and to_id = ?
+            """, [game_id, round_num - 1, f], one=True)
+
+            if f2 != None and int(f2["from_id"]) == t: # type: ignore
+                old_place = True
+                break
+        
+        if not in_place and not old_place:
             break
     
     for (f, t) in zip(user_ids_orig, user_ids):
