@@ -1,10 +1,10 @@
--- DROP TABLE IF EXISTS users;
--- CREATE TABLE users (
---     id INTEGER PRIMARY KEY AUTOINCREMENT,
---     email TEXT UNIQUE NOT NULL,
---     display_name TEXT NOT NULL,
---     password CHAR(60) NOT NULL
--- );
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE NOT NULL,
+    display_name TEXT NOT NULL,
+    password CHAR(60) NOT NULL
+);
 
 DROP TABLE IF EXISTS games;
 CREATE TABLE games (
