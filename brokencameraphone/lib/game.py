@@ -2,6 +2,8 @@ import os
 import random
 import brokencameraphone.lib.db as db
 import brokencameraphone.lib.helpers as helpers
+from PIL import Image
+import io
 
 from flask import Flask, session, request, flash, send_from_directory
 from flask.helpers import url_for
@@ -137,7 +139,7 @@ def register_routes(app: Flask):
         if photo and allowed:
             new_filename = f"photo_{joincode}_{participant['user_id']}_{game['current_round']}.{ext}"
             path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
-            photo.save(path)
+            compress_image_to_size(photo, path)
         else:
             flash("This file format is not supported. Please use either PNG, JPEG, BMP, or GIF!")
             return redirect("/game/" + joincode)
@@ -265,6 +267,30 @@ def register_routes(app: Flask):
                      """, [session["user_id"], game["id"]], commit=True)
         
         return redirect("/game/" + joincode)
+
+def compress_image_to_size(input_path, output_path, target_size_mb=3):
+    target_size_bytes = target_size_mb * (1024**2)
+    quality = 95  # Starting quality for compression
+
+    with Image.open(input_path) as img:
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+
+        while True:
+            img_io = io.BytesIO()
+            img.save(img_io, format='JPEG', quality=quality)
+            img_size = img_io.tell()
+
+            if img_size <= target_size_bytes:
+                break
+
+            quality -= 5
+            if quality < 5:
+                # image is too big; give up! :)
+                break
+
+    with open(output_path, 'wb') as f:
+        f.write(img_io.getvalue())
 
 def allowed_photo_file(filename):
     ext = filename.rsplit(".", 1)[1].lower()
