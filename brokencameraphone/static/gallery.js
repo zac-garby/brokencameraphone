@@ -3,9 +3,20 @@ var state = undefined
 var currentShowingUser = -1
 var roundAmount = 0
 var submissions = []
+var gameInfo
 
 function onLoad() {
-    updateGallery()
+    makeRequest("/api/game/" + getJoincode(), req => {
+        var resp = JSON.parse(req.responseText)
+
+        if (resp.exists) {
+            gameInfo = resp.info
+            updateGallery()
+        } else {
+            console.error("couldn't get game! retrying in 2000ms")
+            window.setTimeout(onLoad, 2000)
+        }
+    })
 }
 
 function getJoincode() {
@@ -81,7 +92,13 @@ function renderSubmissions() {
     ul.innerHTML = ""
     ul.classList.add("gallery-submissions")
 
-    for (var sub of submissions) {
+    var allShown = submissions.length >= gameInfo.max_rounds * 2
+    document.getElementById("gallery-controls").className = allShown ? "finished" : "unfinished"
+    
+    
+    for (var i = 0; i < submissions.length; i++) {
+        var sub = submissions[i]
+
         var li = document.createElement("li")
 
         var user = document.createElement("h3")
@@ -90,14 +107,16 @@ function renderSubmissions() {
         li.appendChild(user)
 
         if (sub["prompt"]) {
-            user.textContent += " says..."
+            user.textContent += i + 1 == submissions.length
+              ? " starts off with..."
+              : " responds with..."
 
             var prompt = document.createElement("p")
             prompt.classList.add("prompt")
             prompt.textContent = '"' + sub["prompt"] + '"'
             li.appendChild(prompt)
         } else {
-            user.textContent += " took a picture of..."
+            user.textContent += " takes a picture of..."
 
             var photo = document.createElement("img")
             photo.classList.add("photo")
@@ -110,6 +129,8 @@ function renderSubmissions() {
         }
 
         ul.appendChild(li)
+
+        first = false
     }
 }
 
@@ -125,12 +146,12 @@ function renderPlayerList() {
         var li = document.createElement("li")
         li.innerHTML = player["display_name"]
 
-        if (player["user_id"] == currentShowingUser) {
-            li.classList.add("viewing")
-        }
-
         if (player["is_owner"]) {
             li.innerHTML = "👑 " + li.innerHTML
+        }
+
+        if (player["user_id"] == currentShowingUser) {
+            li.classList.add("viewing")
         }
 
         if (player["has_submitted"] > 0) {
@@ -141,7 +162,9 @@ function renderPlayerList() {
             const userId = player["user_id"]
 
             li.onclick = el => {
-                makeRequest("/api/gallery/set/" + getJoincode() + "/" + userId, () => window.location.href = window.location.href)
+                makeRequest("/api/gallery/set/" + getJoincode() + "/" + userId, () => {
+                    updateGallery()
+                })
             }
         }
 

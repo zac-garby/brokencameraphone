@@ -1,331 +1,351 @@
 * {
     box-sizing: border-box;
-    color: rgb(119, 0, 34);
+    font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
+    color: #5B0000;
 }
 
-html, body {
-    background-color: white;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+html {
     font-size: 1.2rem;
-}
-
-h1.logo {
-    text-align: center;
-}
-
-img.logo {
-    width: 275px;
-}
-
-img.logo:hover {
-    animation-name: wiggle;
-    animation-duration: 1.2s;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: 2;
-    animation-direction: alternate;
-}
-
-@keyframes wiggle {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    50% {
-        transform: rotate(4deg);
-    }
-
-    100% {
-        transform: rotate(-3deg);
-    }
 }
 
 div.wrapper {
-    width: 850px;
+    width: 700px;
+    display: block;
     margin: auto;
-    margin-top: 60px;
     left: 0;
     right: 0;
+    margin-top: 100px;
 }
 
-.center {
-    text-align: center;
-}
-
-h1, h2, h3 {
-    color: rgb(200, 0, 57);
-    margin-top: 0;
-    margin-bottom: 5px;
-}
-
-form {
-    background-color: rgb(200, 0, 57, 0.1);
-    border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 15px;
-}
-
-form input {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 1rem;
-}
-
-form input[type=text], form input[type=password], form textarea, form input[type=number], button {
+nav {
     width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 2px solid rgb(217, 163, 178);
-    border-radius: 5px;
-    resize: none;
-    font-size: 1rem;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-}
-
-form input[type=number] {
-    width: 60px;
-    font-size: 1.2rem;
-    padding: 5px;
-    text-align: center;
-}
-
-form input[type=submit], button {
-    display: block;
-    width: 100%;
-    padding: 8px 32px;
-    margin: 0;
-    background-color: rgb(200, 0, 57);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-form p {
-    font-weight: normal;
-    font-size: 0.8rem;
-}
-
-form div.row {
+    height: 75px;
+    background-image: url("/static/shadow.svg");
+    background-repeat: no-repeat;
     display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    gap: 10px;
+    flex-direction: column;
+    padding-left: 160px;
+    font-size: 1.1rem;
+    margin-bottom: 50px;
 }
 
-form div.row input {
-    display: inline;
-    margin: 0;
-}
-
-div#error {
-    background-color: rgba(200, 0, 57, 0.1);
-    padding: 10px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    border-radius: 10px;
-}
-
-ul.flashes {
+nav ul {
     list-style: none;
-    padding-left: 0;
-    padding: 0 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
 }
 
-ul.flashes li {
-    background-color: rgba(141, 172, 240, 0.1);
-    border-radius: 10px;
-    color: rgb(22, 37, 71);
-    padding: 10px;
-    margin-bottom: 15px;
+nav ul li {
+    display: inline-block;
 }
 
-ul.flashes li:first-child {
-    margin-bottom: 0;
-}
-
-article > p, article > div {
-    padding: 0 10px;
-}
-
-div.multicol {
-    column-count: 2;
+p {
     font-size: 1rem;
-    text-align: justify;
+    margin-top: 0;
+}
+
+a {
+    font-weight: bold;
+    color: #5B0000;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+nav a {
+    text-decoration: none;
+}
+
+h1.logo {
+    margin-bottom: -70px;
+    padding-inline: 40px;
 }
 
 div.split {
     display: grid;
     grid-template-columns: 60% auto;
+    gap: 40px;
 }
 
-div.split > div {
-    padding: 10px;
-}
-
-nav ul {
+ul.game-list {
+    display: flex;
     list-style: none;
-    padding: 10px;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+}
+
+ul.game-list li {
+    background-color: #F6E8E8;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+ul.game-list span.status {
+    font-style: italic;
+}
+
+ul.game-list span.code {
+    font-size: 1.2rem;
+}
+
+span.code, li.code {
+    font-family: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
+}
+
+div.forms {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+form.button {
+    background-color: #CA5B66;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+}
+
+input {
+    font-size: 1rem;
+}
+
+form.button input {
+    background-color: transparent;
+    border: none;
+    text-align: right;
+    font-size: 1.2rem;
+}
+
+form.button input[type=submit] {
+    color: white;
     font-weight: bold;
-    background-color: rgba(150, 150, 150, 0.1);
-    border-radius: 10px;
-    margin-left: 10px;
-    margin-right: 10px;
 }
 
-nav ul * {
-    color: rgb(45, 45, 45);
-    text-decoration: none;
-}
-
-nav ul li {
-    display: inline;
-    padding-right: 15px;
-}
-
-p {
-    margin-top: 0;
-}
-
-p#prompt, p.prompt {
+form.button input[type=text] {
+    background-color: #F6E8E8;
     text-align: center;
-    font-weight: bold;
-}
-
-img#prompt {
-    width: 100%;
-    margin: 10px 0;
-}
-
-p.code {
-    text-align: center;
-    background-color: rgba(141, 172, 240, 0.1);
-    color:rgb(22, 37, 71);
-    font-weight: bold;
-    font-size: 2rem;
-    padding: 15px;
-    margin-bottom: 0;
-    font-family: "Roboto Mono", monospace;
-    letter-spacing: 8px;
-    border-radius: 10px;
-}
-
-li.code, span.code {
-    font-weight: normal;
-    background-color: rgba(141, 172, 240, 0.1);
+    font-weight: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
+    width: 80px;
     border-radius: 5px;
-    padding: 5px 10px;
-    font-family: "Roboto Mono", monospace;
-    letter-spacing: 4px;
 }
 
-li.round {
-    font-weight: normal;
-    padding: 5px 10px;
+form.button input[type=text]::placeholder {
+    color: #CCAFAF;
 }
 
-ul#players {
-    list-style: none;
-    padding-left: 0;
+form {
+    background-color: #F6E8E8;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-ul#players li {
-    background-color: rgba(141, 172, 240, 0.1);
-    color: rgb(22, 37, 71);
-    border-radius: 10px;
-    padding: 10px 15px;
+form > * {
+    margin: 0;
+}
+
+form p.inset {
+    font-size: 0.7rem;
+}
+
+form div.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-content: center;
+    gap: 10px;
+}
+
+form label {
     font-weight: bold;
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
 }
 
-ul#players li.submitted {
-    color: rgb(22, 37, 71, 0.5);
-    background-color: rgba(141, 172, 240, 0.05);
+form input[type=number] {
+    width: 70px;
+    border: none;
+    padding-left: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    border-radius: 4px;
+    text-align: center;
 }
 
-ul#players li.viewing {
-    color: rgb(20, 66, 145);
+input[type=submit] {
+    cursor: pointer;
+    font-weight: bold;
+    background: none;
+    border-radius: 5px;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 0;
+}
+
+form textarea {
+    padding: 8px;
+    resize: none;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+input[type=submit]:hover {
+    text-decoration: underline;
+}
+
+h1, h2, h3 {
+    margin-top: 0;
 }
 
 ul.lobby-controls {
     list-style: none;
+    padding: 0;
+}
+
+ul.flashes {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    gap: 10px;
+}
+
+ul.flashes li {
+    background-color: rgb(255, 250, 228);
+    width: 100%;
+    padding: 16px;
+    border-radius: 10px;
+}
+
+ul#players {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+ul#players li.submitted {
+    text-decoration: line-through;
+    color: #9f8989;
+}
+
+ul#players.gallery-playerlist li {
+    cursor: pointer;
+}
+
+ul#players.gallery-playerlist li::before {
+    width: 30px;
+    display: inline-block;
+    content: " ";
+}
+
+ul#players.gallery-playerlist li:hover::before {
+    content: "👀 ";
+    opacity: 0.3;
+}
+
+ul#players.gallery-playerlist li.viewing {
     font-weight: bold;
-    padding: 0px;
+}
+
+ul#players.gallery-playerlist li.viewing::before {
+    content: "👀 ";
+    opacity: 1;
+}
+
+ul.lobby-controls {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 10px;
 }
 
 li.form {
-    display: block;
+    background-color: #F6E8E8;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+p#prompt, p.prompt {
+    padding-left: 10px;
+    border-left: 10px solid #eae6e6;
+    color: #a81e1e;
+}
+
+img#prompt {
     width: 100%;
-    padding: 8px 16px;
-    margin: 0;
-    background-color: rgb(200, 0, 57);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
     margin-bottom: 10px;
-}
-
-li.form.minor {
-    font-size: 0.8rem;
-    font-weight: normal;
-    text-align: center;
-}
-
-ul.lobby-controls a, li.form a {
-    display: block;
-    text-decoration: none;
-    color: white;
-}
-
-ul.game-list {
-    padding-left: 0;
-    list-style: none;
-}
-
-ul.game-list li {
-    margin-bottom: 20px;
-}
-
-span.status {
-    font-style: italic;
-    font-size: 0.9rem;
-}
-
-ul.gallery-playerlist li {
-    cursor: pointer;
-}
-
-ul.gallery-playerlist li:hover {
-    background-color: rgba(87, 121, 193, 0.209) !important;
 }
 
 ul#submissions {
-    padding-left: 0;
     list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-ul#submissions li {
-    background-color: rgba(141, 172, 240, 0.1);
-    border-radius: 10px;
-    margin-bottom: 10px;
-    padding: 10px;
-}
-
-ul#submissions li h3.username {
-    color: rgb(22, 37, 71);
+ul#submissions h3.username {
     font-size: 1rem;
-    margin-top: 0;
-    font-style: italic;
+    margin-bottom: 5px;
 }
 
-ul#submissions li p.prompt {
-    margin-bottom: 0;
-    font-size: 1.5rem;
-}
-
-ul#submissions li img.photo {
+ul#submissions a {
+    display: block;
     width: 100%;
+    max-height: 400px;
+    overflow-y: hidden;
+}
+
+ul#submissions img {
+    width: 100%;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    background-color: #F6E8E8;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 8px 12px;
+    border-radius: 5px;
+    width: 100%;
+    text-align: left;
+}
+
+button:hover {
+    text-decoration: underline;
+}
+
+span.pretend-button {
+    background-color: #F6E8E8;
+    font-weight: bold;
+    border-radius: 4px;
+    padding: 1px 8px;
+    white-space: nowrap;
+}
+
+div#gallery-controls .after-finish {
+    display: none;
+}
+
+div#gallery-controls.finished .before-finish {
+    display: none;
+}
+
+div#gallery-controls.finished .after-finish {
+    display: inherit;
 }

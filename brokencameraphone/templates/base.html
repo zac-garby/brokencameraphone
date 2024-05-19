@@ -17,9 +17,7 @@
     <div class="wrapper">
         <header>
             <h1 class="logo">
-                <a href="/">
-                    <img class="logo" src="/static/logo.png" alt="Broken Cameraphone">
-                </a>
+                <img class="logo" src="/static/logo.svg" alt="Broken Cameraphone">
             </h1>
         </header>
         {% if user_id %}
@@ -27,12 +25,9 @@
                 <ul>
                     <li><a href="/">Home</a></li>
                     <li><a href="/about">About</a></li>
-                    <li><a href="/logout">Log Out</a></li>
+                    <li><a href="/profile">Profile</a></li>
                     {% if game %}
                         <li class="code">{{ game["join_code"] }}</li>
-                        {% if game['current_round'] // 2 < game['max_rounds'] %}
-                        <li class="round">Round {{ 1 + game['current_round'] // 2 }}/{{ game['max_rounds'] }}</li>
-                        {% endif %}
                     {% endif %}
                 </ul>
             </nav>

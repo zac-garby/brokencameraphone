@@ -174,6 +174,32 @@ def register_routes(app: Flask):
     def get_photo(path):
         return send_from_directory(app.config["UPLOAD_FOLDER"], path)
     
+    @app.get("/api/game/<joincode>")
+    @helpers.logged_in
+    def get_api_games_info(joincode):
+        game = db.query(
+            """
+            select * from games
+            where join_code = ?
+            """, [joincode], one=True)
+        
+        if game == None:
+            return {
+                "exists": False,
+                "info": None
+            }
+
+        return {
+            "exists": True,
+            "info": {
+                "join_code": game["join_code"], # type: ignore
+                "current_round": game["current_round"], # type: ignore
+                "max_rounds": game["max_rounds"], # type: ignore
+                "current_showing_user": game["current_showing_user"], # type: ignore
+                "state": game["state"] # type: ignore
+            }
+        }
+
     @app.get("/api/gallery/view/<joincode>")
     @helpers.logged_in
     @helpers.with_game("game")

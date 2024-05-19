@@ -2,7 +2,6 @@
 
 {% block lobby_content %}
 {% if participant.has_submitted == 1 %}
-<h2>Done!</h2>
 <p>
     Thanks for the photo! Now just to wait for the others.
 </p>
@@ -10,12 +9,11 @@
     This may take a while. Remember - some people are lazy.
 </p>
 {% else %}
-<h2>Take your photo!</h2>
 <p>
     Your prompt is:
 </p>
 <p id="prompt">
-    {{ previous_submission["prompt"] }}
+    "{{ previous_submission["prompt"] }}"
 </p>
 <p>Go out into the wide world and take a photo of something which this reminds you of!</p>
 <form action="/submit-photo/{{ game['join_code'] }}" method="post" enctype="multipart/form-data">

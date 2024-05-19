@@ -6,7 +6,6 @@
 {% endblock %}
 
 {% block lobby_content %}
-<h2>Initial Prompts</h2>
 {% if participant.has_submitted == 1 %}
 <p>
     Thanks for the prompt! Now just to wait for the others.
@@ -17,6 +16,9 @@
 {% else %}
 <p>
     Enter an initial prompt to give to somebody else below. This can be absolutely anything!
+</p>
+<p>
+    Try to keep it open-ended, if possible. Let people be creative!
 </p>
 <form action="/submit-prompt/{{ game['join_code'] }}" method="post">
     <textarea name="prompt" id="prompt" rows="3"></textarea>
