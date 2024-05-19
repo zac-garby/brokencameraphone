@@ -92,9 +92,10 @@ function renderSubmissions() {
     ul.innerHTML = ""
     ul.classList.add("gallery-submissions")
 
-    var allShown = submissions.length >= gameInfo.max_rounds * 2
-    document.getElementById("gallery-controls").className = allShown ? "finished" : "unfinished"
-    
+    if (isGameOwner) {
+        var allShown = submissions.length >= gameInfo.max_rounds * 2
+        document.getElementById("gallery-controls").className = allShown ? "finished" : "unfinished"
+    }
     
     for (var i = 0; i < submissions.length; i++) {
         var sub = submissions[i]

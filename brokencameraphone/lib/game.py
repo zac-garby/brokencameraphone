@@ -292,10 +292,10 @@ def register_routes(app: Flask):
             where user_id = ? and game_id = ?
                      """, [session["user_id"], game["id"]], commit=True)
         
-        return redirect("/game/" + joincode)
+        return redirect("/")
 
-def compress_image_to_size(input_path, output_path, target_size_mb=3):
-    target_size_bytes = target_size_mb * (1024**2)
+def compress_image_to_size(input_path, output_path, target_size_kb=96):
+    target_size_bytes = target_size_kb * 1024
     quality = 95  # Starting quality for compression
 
     with Image.open(input_path) as img:

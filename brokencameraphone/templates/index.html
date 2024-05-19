@@ -5,44 +5,47 @@
 {% block content %}
 <div class="split">
     <div>
-        {% if games %}
-        <ul class="game-list">
-        {% for game in games %}
-            {% if game.is_archived == 0 %}
-            <li>
-                <a href="/game/{{ game.join_code }}"><span class="code">{{ game.join_code }}</span></a>
-                {% if game.has_submitted or game.state in [0, 4] %}
-                    {% if game.state == 0 %}
-                        <span class="status">Waiting for players...</span>
-                    {% elif game.state == 1 %}
-                        <span class="status">Waiting for prompts</span>
-                    {% elif game.state == 2 %}
-                        <span class="status">Taking photos!</span>
-                    {% elif game.state == 3 %}
-                        <span class="status">Waiting for prompts</span>
-                    {% elif game.state == 4 %}
-                        <span class="status">Finished</span>
-                    {% endif %}
-                {% else %}
-                    <span class="status">Waiting for you!</span>
-                {% endif %}
-            </li>
-            {% endif %}
-        {% endfor %}
-        </ul>
-        {% else %}
         <p>Welcome to <em>Whispering Cameraphone</em>!</p>
-        <p>
-            You've got no currently active games. If you're new
-            here, take a look at <a href="/about">About</a> to
-            learn a bit about how to play.
-        </p>
-        <p>
-            If a friend has sent you a 4-digit code, you can join
-            their game by entering that over at the right of this
-            page. Otherwise, you can make <a href="/new-game">your own lobby</a>.
-        </p>
+        {% if games %}
+            <ul class="game-list">
+            {% for game in games %}
+                {% if game.is_archived == 0 %}
+                <li>
+                    <a href="/game/{{ game.join_code }}"><span class="code">{{ game.join_code }}</span></a>
+                    {% if game.has_submitted or game.state in [0, 4] %}
+                        {% if game.state == 0 %}
+                            <span class="status">Waiting for players...</span>
+                        {% elif game.state == 1 %}
+                            <span class="status">Waiting for prompts</span>
+                        {% elif game.state == 2 %}
+                            <span class="status">Taking photos!</span>
+                        {% elif game.state == 3 %}
+                            <span class="status">Waiting for prompts</span>
+                        {% elif game.state == 4 %}
+                            <span class="status">Finished</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="status">Waiting for you!</span>
+                    {% endif %}
+                </li>
+                {% endif %}
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>
+                You've got no currently active games. If you're new
+                here, take a look at <a href="/about">About</a> to
+                learn a bit about how to play.
+            </p>
+            <p>
+                If a friend has sent you a 4-digit code, you can join
+                their game by entering that over at the right of this
+                page. Otherwise, you can make <a href="/new-game">your own lobby</a>.
+            </p>
         {% endif %}
+        <p>
+            You can find your archived games in <a href="/profile">Profile</a>.
+        </p>
     </div>
     <div class="forms">
         <form action="/new-game" method="get" class="button">

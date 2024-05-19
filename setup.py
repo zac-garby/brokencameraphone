@@ -7,5 +7,5 @@ setup(
     author="Zac Garby",
     author_email="me@zacgarby.co.uk",
     packages=["brokencameraphone", "brokencameraphone.lib"],
-    install_requires=["Flask", "bcrypt"]
+    install_requires=["Flask", "bcrypt", "pillow"]
 )

@@ -46,7 +46,7 @@ def index():
             games
         inner join participants as p on games.id = p.game_id
         left join archived on games.id = archived.game_id and archived.user_id = p.user_id
-        where p.user_id = ?
+        where p.user_id = ? and is_archived = 0
                         """,
                         [session["user_id"]])
         
