@@ -11,6 +11,8 @@ from flask.templating import render_template
 from werkzeug.utils import redirect
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "bmp"}
+MAX_IMAGE_SIZE = (2048, 2048)
+MAX_IMAGE_KB = 256
 
 def register_routes(app: Flask):
     @app.get("/game/<joincode>")
@@ -140,7 +142,7 @@ def register_routes(app: Flask):
         if photo and allowed:
             new_filename = f"photo_{joincode}_{participant['user_id']}_{game['current_round']}.{ext}"
             path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
-            compress_image_to_size(photo, path)
+            compress_image_to_size(photo, path, target_size_kb=MAX_IMAGE_KB)
         else:
             flash("This file format is not supported. Please use either PNG, JPEG, BMP, or GIF!")
             return redirect("/game/" + joincode)
@@ -302,6 +304,8 @@ def compress_image_to_size(input_path, output_path, target_size_kb=96):
     with Image.open(input_path) as img:
         if img.mode in ("RGBA", "P"):
             img = img.convert("RGB")
+        
+        img.thumbnail(MAX_IMAGE_SIZE)
 
         while True:
             img_io = io.BytesIO()
