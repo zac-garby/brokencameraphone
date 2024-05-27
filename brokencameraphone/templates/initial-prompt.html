@@ -8,7 +8,10 @@
 {% block lobby_content %}
 {% if participant.has_submitted == 1 %}
 <p>
-    Thanks for the prompt! Now just to wait for the others.
+    Thanks for the prompt! Now just to wait for the others. You said:
+</p>
+<p class="prompt">
+    "{{ recent_submission["prompt"] }}"
 </p>
 <p>
     If you're in a voice chat, make annoying noises at them to speed them up.
