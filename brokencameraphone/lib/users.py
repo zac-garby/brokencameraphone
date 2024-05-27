@@ -68,7 +68,7 @@ def register_routes(app: Flask):
         user = db.query("select * from users where email = ?", [email], one=True)
         session["user_id"] = int(user["id"]) # type: ignore
 
-        flash("Your account has been made, and you've been logged in. Welcome to Broken Cameraphone!")
+        flash("Your account has been made, and you've been logged in. Welcome to Whispering Cameraphone!")
 
         return redirect(url_for("index"))
 
