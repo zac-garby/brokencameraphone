@@ -3,8 +3,11 @@
 {% block lobby_content %}
 {% if participant.has_submitted == 1 %}
 <p>
-    Thanks for the photo! Now just to wait for the others.
+    Thanks for the photo! Now just to wait for the others. You submitted:
 </p>
+<a href="/photo/{{ recent_submission['photo_path'] }}">
+    <img class="recent" src="/photo/{{ recent_submission['photo_path'] }}" alt="Your just-uploaded photo.">
+</a>
 <p>
     This may take a while. Remember - some people are lazy.
 </p>

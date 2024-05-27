@@ -3,7 +3,10 @@
 {% block lobby_content %}
 {% if participant.has_submitted == 1 %}
 <p>
-    Thanks for the prompt! Now just to wait for the others.
+    Thanks for the prompt! Now just to wait for the others. You said:
+</p>
+<p class="prompt">
+    "{{ recent_submission["prompt"] }}"
 </p>
 <p>
     This may take a while. Remember - some people are lazy.

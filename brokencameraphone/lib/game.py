@@ -5,7 +5,7 @@ import brokencameraphone.lib.helpers as helpers
 from PIL import Image
 import io
 
-from flask import Flask, session, request, flash, send_from_directory
+from flask import Flask, session, request, flash, send_from_directory, abort
 from flask.helpers import url_for
 from flask.templating import render_template
 from werkzeug.utils import redirect
@@ -59,6 +59,7 @@ def register_routes(app: Flask):
                 game=game,
                 participant=participant,
                 previous_submission=get_previous_submission(joincode, participant),
+                recent_submission=get_recent_submission(joincode, participant),
                 user_id=session["user_id"],
                 is_owner=game['owner_id'] == session["user_id"]) # type: ignore
         
@@ -201,7 +202,7 @@ def register_routes(app: Flask):
                 "state": game["state"] # type: ignore
             }
         }
-
+    
     @app.get("/api/gallery/view/<joincode>")
     @helpers.logged_in
     @helpers.with_game("game")
@@ -426,5 +427,18 @@ def get_previous_submission(joincode, participant):
     inner join chain_links as l on l.round = g.current_round and l.to_id = ? and l.from_id = s.user_id and l.game_id = g.id
     where g.join_code = ? and s.round = (g.current_round - 1)
     """, [participant["user_id"], joincode], one=True)
+
+    return submission
+
+# gets the prompt (or photo prompt) which a player recently submitted themselves 
+def get_recent_submission(joincode, participant):
+    submission = db.query(
+        """
+        select * from submissions
+        inner join games on game_id = games.id
+        where games.join_code = ?
+            and user_id = ?
+            and round = games.current_round
+        """, [joincode, participant["user_id"]], one=True)
 
     return submission
