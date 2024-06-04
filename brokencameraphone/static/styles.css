@@ -70,6 +70,15 @@ div.split {
     gap: 40px;
 }
 
+div.split.equal {
+    gap: 20px;
+    grid-template-columns: calc(50% - 10px) auto;
+}
+
+div.split > * {
+    overflow-x: hidden;
+}
+
 ul.game-list {
     display: flex;
     list-style: none;
