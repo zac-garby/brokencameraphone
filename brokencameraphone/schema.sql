@@ -9,7 +9,7 @@ CREATE TABLE users (
 DROP TABLE IF EXISTS games;
 CREATE TABLE games (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    join_code TEXT,
+    join_code TEXT COLLATE NOCASE,
     owner_id INTEGER NOT NULL,
 
     current_round INTEGER NOT NULL,
