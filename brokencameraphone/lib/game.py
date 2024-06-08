@@ -288,13 +288,11 @@ def register_routes(app: Flask):
     @helpers.with_game("game")
     @helpers.with_participant("participant")
     def get_api_gallery_download(joincode, game, participant):
-        # TODO: check if we're allowed to download yet
-
         if game["state"] != 4:
             flash("You can't download the gallery until the game has finished!")
             return redirect("/game/" + joincode)
 
-        file_name = f"gallery_{joincode}.zip"
+        file_name = f"WCP-gallery-{joincode}.zip"
         mem_file = BytesIO()
 
         chains = get_chains(game["id"])

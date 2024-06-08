@@ -37,3 +37,9 @@
 </p>
 {% endif %}
 {% endblock %}
+
+{% block lobby_controls %}
+<li class="form">
+    <a href="/api/gallery/download/{{ game['join_code'] }}">Download gallery <code>.zip</code></a>
+</li>
+{% endblock %}
