@@ -40,6 +40,11 @@
     div.split {
         gap: 20px;
     }
+
+    form.button {
+        flex-direction: column;
+        align-items: end;
+    }
 }
 
 @media screen and (max-width: 450px) {
@@ -81,5 +86,17 @@
 
     ul.flashes {
         margin-top: 0;
+    }
+
+    form.button {
+        flex-direction: row-reverse;
+        align-items: inherit;
+    }
+}
+
+@media screen and (max-width: 280px) {
+    form.button {
+        flex-direction: column;
+        align-items: end;
     }
 }
