@@ -2,10 +2,14 @@ import os
 import random
 import brokencameraphone.lib.db as db
 import brokencameraphone.lib.helpers as helpers
-from PIL import Image
-import io
+import zipfile
+import tempfile
 
-from flask import Flask, session, request, flash, send_from_directory, abort
+from PIL import Image
+from io import BytesIO
+from slugify import slugify
+
+from flask import Flask, session, request, flash, send_from_directory, abort, send_file
 from flask.helpers import url_for
 from flask.templating import render_template
 from werkzeug.utils import redirect
@@ -278,6 +282,49 @@ def register_routes(app: Flask):
         return {
             "ok": True
         }
+    
+    @app.get("/api/gallery/download/<joincode>")
+    @helpers.logged_in
+    @helpers.with_game("game")
+    @helpers.with_participant("participant")
+    def get_api_gallery_download(joincode, game, participant):
+        # TODO: check if we're allowed to download yet
+
+        if game["state"] != 4:
+            flash("You can't download the gallery until the game has finished!")
+            return redirect("/game/" + joincode)
+
+        file_name = f"gallery_{joincode}.zip"
+        mem_file = BytesIO()
+
+        chains = get_chains(game["id"])
+        if chains == None:
+            flash("Invalid game ID")
+            return redirect("/game/" + joincode)
+
+        with zipfile.ZipFile(mem_file, "w", zipfile.ZIP_DEFLATED) as f:
+            for root_user, chain in chains.items():
+                root_name = slugify(user_display_name(root_user)) # type: ignore
+
+                for sub in chain:
+                    path_start = os.path.join(
+                        root_name,
+                        f"{sub['round']}-{slugify(sub['user_name'])}")
+
+                    if sub["photo_path"] is not None:
+                        # got a photo; write it directly
+                        _, ext = allowed_photo_file(sub["photo_path"])
+
+                        f.write(
+                            os.path.join(app.config["UPLOAD_FOLDER"], sub["photo_path"]),
+                            arcname=f"{path_start}-photo.{ext}")
+                    else:
+                        # got a prompt; make a text file to put it in
+                        f.writestr(f"{path_start}-prompt.txt", sub["prompt"])
+
+        mem_file.seek(0)
+
+        return send_file(mem_file, download_name=file_name, as_attachment=True)
 
     @app.get("/set-archived/<joincode>/<val>")
     @helpers.logged_in
@@ -296,6 +343,40 @@ def register_routes(app: Flask):
                      """, [session["user_id"], game["id"]], commit=True)
         
         return redirect("/")
+
+def get_chains(game_id):
+    all_submissions = db.query(
+        """
+        select submissions.*, users.display_name as "user_name" from submissions
+        inner join users on submissions.user_id = users.id
+        where game_id = ?
+        """, [game_id])
+
+    if all_submissions == None:
+        return None
+    
+    chains = {}
+
+    for sub in all_submissions:
+        if sub["root_user"] not in chains:
+            chains[sub["root_user"]] = []
+        
+        chains[sub["root_user"]].append(sub)
+    
+    return chains
+
+def user_display_name(user_id):
+    name = db.query(
+        """
+        select display_name
+        from users
+        where id = ?
+        """, [user_id], one=True)
+
+    if name == None:
+        return None
+
+    return name["display_name"] # type: ignore
 
 def compress_image_to_size(input_path, output_path, target_size_kb=96):
     target_size_bytes = target_size_kb * 1024
