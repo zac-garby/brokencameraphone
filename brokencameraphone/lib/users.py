@@ -122,6 +122,28 @@ def register_routes(app: Flask):
         flash("Thanks for that. Your email is now confirmed.")
 
         return redirect(url_for("index"))
+    
+    @app.get("/resend-confirmation")
+    def get_resend_confirmation():
+        if "user_id" not in session:
+            return redirect(url_for("login_get"))
+        
+        user = db.query(
+        """
+        select email_confirmation_code
+        from users
+        where id = ?
+        """, [session["user_id"]], one=True)
+
+        if user == None:
+            return redirect(url_for("index"))
+        
+        send_confirmation_email(session["email"],
+                                user["email_confirmation_code"]) # type: ignore
+        
+        flash("Confirmation email re-sent. Please give it a few minutes to be delivered.")
+        
+        return redirect(url_for("index"))
 
     @app.route("/logout")
     def logout():
