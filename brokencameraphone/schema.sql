@@ -3,7 +3,9 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     display_name TEXT NOT NULL,
-    password CHAR(60) NOT NULL,
+    password CHAR(60) NOT NULL
+    has_confirmed_email INTEGER NOT NULL,
+    email_confirmation_code TEXT NOT NULL
 
     photos_submitted INTEGER DEFAULT 0 NOT NULL,
     games_played INTEGER DEFAULT 0 NOT NULL,
@@ -68,6 +70,9 @@ CREATE TABLE submissions (
     -- whether this submission has been revealed yet
     -- in the post-game gallery thing.
     revealed INTEGER DEFAULT 0 NOT NULL,
+
+    -- the time when this submission was made. UTC timestamp.
+    timestamp INTEGER NOT NULL,
 
     -- either photo_path or prompt is NULL, depending
     -- on whether this round was a photo or prompt round.

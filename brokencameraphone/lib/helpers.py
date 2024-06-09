@@ -8,6 +8,19 @@ def logged_in(handler):
     def new_handler(*args, **kw):
         if "user_id" not in session:
             return redirect(url_for("index"))
+    
+        user = db.query(
+        """
+        select has_confirmed_email
+        from users
+        where id = ?
+        """, [session["user_id"]], one=True)
+
+        if user == None:
+            return redirect(url_for("index"))
+        
+        if user["has_confirmed_email"] == 0: # type: ignore
+            return redirect(url_for("index"))
 
         return handler(*args, **kw)
     

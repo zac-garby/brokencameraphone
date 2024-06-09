@@ -83,6 +83,10 @@ div.split > * {
     overflow-x: hidden;
 }
 
+code {
+    font-family: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
+}
+
 ul.game-list {
     display: flex;
     list-style: none;
@@ -335,6 +339,26 @@ ul#submissions a {
 
 ul#submissions img {
     width: 100%;
+}
+
+ul#submissions a:has(img) {
+    margin-bottom: 10px;
+}
+
+ul#submissions p {
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+ul#submissions p.meta {
+    color: transparent;
+    font-size: 0.8em;
+    font-family: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
+    margin-bottom: 0;
+}
+
+ul#submissions li:hover p.meta {
+    color: grey;
 }
 
 button {

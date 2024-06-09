@@ -129,6 +129,14 @@ function renderSubmissions() {
             li.appendChild(link)
         }
 
+        var date = new Date(sub["timestamp"] * 1000)
+
+        var dateEl = document.createElement("p")
+        dateEl.classList.add("meta")
+        dateEl.textContent =
+            `${date.toDateString()} ${date.getHours()}:${date.getMinutes()}`
+        li.appendChild(dateEl)
+
         ul.appendChild(li)
 
         first = false

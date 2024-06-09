@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Email confirmation{% endblock %}
+
+{% block content %}
+<p>Hey, {{ name }}!</p>
+<p>
+    Welcome to <em>Whispering Cameraphone</em>, and thanks for registering.
+    Before you can play, you'll need to confirm your email address.
+</p>
+<p>
+    That is, <code>{{ email }}</code>.
+</p>
+<p>
+    We've sent you an email, but if you can't see it, maybe check your
+    junk folder.
+</p>
+<p>
+    Need another email sent? <a href="/resend-confirmation">Resend one</a>.
+</p>
+{% endblock %}
