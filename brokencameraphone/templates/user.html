@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{% block content %}
+
+{% if own_profile == True %}
+<p>Welcome to your profile {{name}}!</p>
+
+<div class="split equal">
+    <div class="forms wide">
+        <form action="/update_username" method="post">
+            <h2>Change your name</h2>
+            <input type="text" name="new_username" id="new_username" placeholder="Your new display name">
+            <input type="submit" value="Submit">
+        </form>
+
+        <form action="/update_email" method="post">
+            <h2>Update your email</h2>
+            <input type="email" name="new_email" id="new_email" placeholder="Your new email">
+            <input type="submit" value="Submit">
+        </form>
+
+        <form action="/update_preferences" method="post">
+            <h2>Update preferences</h2>
+            <input type="checkbox" name="public_stats" id="public_stats" value="yes">
+            <label class="inline">Display my stats on my profile to others</label><br>
+            <input type="submit" value="Save">
+        </form>
+    </div> 
+
+    <div class="forms wide">
+        <form action="/update_password" method="post">
+            <h2>Change your password</h2>
+            <input type="password" name="current_pass" id="current_pass" placeholder="Your current password">
+            <input type="password" name="new_pass" id="new_pass" placeholder="Your new password">
+            <input type="password" name="check_new_pass" id="check_new_pass" placeholder="Repeat new password">
+            <input type="submit" value="Submit">
+        </form>
+
+        <form action="/update_webhook" method="post">
+            <h2>Change your webhooks</h2>
+            <input type="password" name="current_pass" id="current_pass" placeholder="Your current password">
+            <input type="submit" value="Submit">
+        </form>
+    </div> 
+</div>
+
+{% else %}
+<p>Welcome to {{name}}'s profile!<p></p>
+{% endif %}
+
+{% if user_id %}
+<p><a href="/logout">Log out</a></p>
+{% endif %}
+
+{% endblock %}

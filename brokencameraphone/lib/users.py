@@ -32,6 +32,7 @@ def register_routes(app: Flask):
         if valid:
             session["email"] = email
             session["user_id"] = int(user["id"]) # type: ignore
+            session["name"] = user["display_name"]
             flash("You were successfully logged in.")
             session.permanent = True
         else:
@@ -67,6 +68,7 @@ def register_routes(app: Flask):
 
         user = db.query("select * from users where email = ?", [email], one=True)
         session["user_id"] = int(user["id"]) # type: ignore
+        session["name"] = name
 
         flash("Your account has been made, and you've been logged in. Welcome to Whispering Cameraphone!")
 
@@ -74,6 +76,5 @@ def register_routes(app: Flask):
 
     @app.route("/logout")
     def logout():
-        del(session["email"])
-        del(session["user_id"])
+        session.clear()
         return redirect(url_for("index"))

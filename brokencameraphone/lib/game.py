@@ -4,6 +4,7 @@ import brokencameraphone.lib.db as db
 import brokencameraphone.lib.helpers as helpers
 import zipfile
 import tempfile
+import io
 
 from PIL import Image
 from io import BytesIO

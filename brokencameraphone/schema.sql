@@ -3,7 +3,13 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     display_name TEXT NOT NULL,
-    password CHAR(60) NOT NULL
+    password CHAR(60) NOT NULL,
+
+    photos_submitted INTEGER DEFAULT 0 NOT NULL,
+    games_played INTEGER DEFAULT 0 NOT NULL,
+
+    -- Does this user show their stats on their profile?
+    show_stats TINYINT DEFAULT 0 NOT NULL
 );
 
 DROP TABLE IF EXISTS games;
@@ -23,6 +29,9 @@ CREATE TABLE games (
     -- 3: doing prompts from photos
     -- 4: game finished
     state INTEGER,
+
+    -- Can provide discord webhook endpoint to enable discord notifications for that game
+    discord_webhook TEXT,
 
     FOREIGN KEY (owner_id) REFERENCES users (id),
     FOREIGN KEY (current_showing_user) REFERENCES users (id)
@@ -99,4 +108,15 @@ CREATE TABLE archived (
     FOREIGN KEY (game_id) REFERENCES games (id),
 
     PRIMARY KEY (user_id, game_id)
+);
+
+DROP TABLE IF EXISTS webhooks;
+CREATE TABLE webhooks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    user_id INTEGER NOT NULL,
+    webhook TEXT NOT NULL,
+    display_name TEXT NOT NULL
+
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );

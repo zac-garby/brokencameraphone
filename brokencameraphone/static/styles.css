@@ -120,6 +120,10 @@ div.forms {
     gap: 10px;
 }
 
+div.forms.wide {
+    gap: 20px;
+}
+
 form.button {
     background-color: #CA5B66;
     padding: 8px;
