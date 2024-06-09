@@ -3,11 +3,12 @@ import random
 import brokencameraphone.lib.db as db
 import brokencameraphone.lib.helpers as helpers
 import zipfile
-import tempfile
+import io
 
 from PIL import Image
 from io import BytesIO
 from slugify import slugify
+from datetime import datetime
 
 from flask import Flask, session, request, flash, send_from_directory, abort, send_file
 from flask.helpers import url_for
@@ -92,15 +93,16 @@ def register_routes(app: Flask):
         
         # submit the prompt
         db.query("""
-                 insert into submissions (user_id, game_id, round, prompt, root_user)
-                 values (?, ?, ?, ?, ?)
+                 insert into submissions (user_id, game_id, round, prompt, root_user, timestamp)
+                 values (?, ?, ?, ?, ?, ?)
                  """,
                  [
                      session["user_id"],
                      game["id"],
                      game["current_round"],
                      request.form["prompt"],
-                     prev["root_user"] # type: ignore
+                     prev["root_user"], # type: ignore
+                     int(datetime.utcnow().timestamp())
                  ],
                  commit=True)
         
@@ -153,15 +155,16 @@ def register_routes(app: Flask):
         
         # submit the photo
         db.query("""
-                 insert into submissions (user_id, game_id, round, photo_path, root_user)
-                 values (?, ?, ?, ?, ?)
+                 insert into submissions (user_id, game_id, round, photo_path, root_user, timestamp)
+                 values (?, ?, ?, ?, ?, ?)
                  """,
                  [
                      session["user_id"],
                      game["id"],
                      game["current_round"],
                      new_filename,
-                     prev["root_user"] # type: ignore
+                     prev["root_user"], # type: ignore
+                     int(datetime.utcnow().timestamp())
                  ],
                  commit=True)
         
@@ -216,7 +219,8 @@ def register_routes(app: Flask):
     def get_api_gallery_view(joincode, game, participant):
         submissions = db.query(
             """
-            select round, photo_path, prompt, display_name, root_user from submissions
+            select round, photo_path, prompt, display_name, root_user, timestamp 
+            from submissions
             inner join games on games.id = submissions.game_id
             inner join users on users.id = submissions.user_id
             where games.current_showing_user = submissions.root_user and submissions.revealed and games.join_code = ?
@@ -235,7 +239,8 @@ def register_routes(app: Flask):
                 "round": s["round"],
                 "photo_path": s["photo_path"],
                 "prompt": s["prompt"],
-                "display_name": s["display_name"]
+                "display_name": s["display_name"],
+                "timestamp": s["timestamp"]
             } for s in submissions ],
             "current_showing_user": game["current_showing_user"],
             "amount": len(submissions)

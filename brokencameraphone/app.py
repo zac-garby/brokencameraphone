@@ -47,7 +47,7 @@ def index():
     """, [session["user_id"]], one=True)
 
     if user == None:
-        return redirect(url_for("index"))
+        return redirect(url_for("login_get"))
     
     if user["has_confirmed_email"] == 0: # type: ignore
         return render_template("needs-email-confirmation.html",

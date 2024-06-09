@@ -62,6 +62,9 @@ CREATE TABLE submissions (
     -- in the post-game gallery thing.
     revealed INTEGER DEFAULT 0 NOT NULL,
 
+    -- the time when this submission was made. UTC timestamp.
+    timestamp INTEGER NOT NULL,
+
     -- either photo_path or prompt is NULL, depending
     -- on whether this round was a photo or prompt round.
     photo_path TEXT,
