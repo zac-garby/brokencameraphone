@@ -14,7 +14,8 @@ app = Flask(__name__)
 app.config.from_mapping(
     SECRET_KEY=os.getenv("SECRET_KEY", default="dev"),
     DATABASE=os.path.join(app.instance_path, "bcp.sqlite"),
-    UPLOAD_FOLDER=os.path.join(app.instance_path, "photos")
+    UPLOAD_FOLDER=os.path.join(app.instance_path, "photos"),
+    ROOT_URL="https://whisperingcameraphone.com"
 )
 
 try:
@@ -35,26 +36,41 @@ game.register_routes(app)
 
 @app.route("/")
 def index():
-    if "user_id" in session:
-        games = db.query("""
-        select
-            games.*, p.*,
-            case
-                when archived.user_id is not null then 1 else 0
-            end as is_archived
-        from
-            games
-        inner join participants as p on games.id = p.game_id
-        left join archived on games.id = archived.game_id and archived.user_id = p.user_id
-        where p.user_id = ? and is_archived = 0
-                        """,
-                        [session["user_id"]])
-        
-        return render_template("index.html",
-                               games=games,
-                               user_id=session["user_id"])
-    else:
+    if "user_id" not in session:
         return redirect(url_for("login_get"))
+    
+    user = db.query(
+    """
+    select has_confirmed_email, display_name, email
+    from users
+    where id = ?
+    """, [session["user_id"]], one=True)
+
+    if user == None:
+        return redirect(url_for("index"))
+    
+    if user["has_confirmed_email"] == 0: # type: ignore
+        return render_template("needs-email-confirmation.html",
+                               name=user["display_name"], # type: ignore
+                               email=user["email"]) # type: ignore
+    
+    games = db.query("""
+    select
+        games.*, p.*,
+        case
+            when archived.user_id is not null then 1 else 0
+        end as is_archived
+    from
+        games
+    inner join participants as p on games.id = p.game_id
+    left join archived on games.id = archived.game_id and archived.user_id = p.user_id
+    where p.user_id = ? and is_archived = 0
+                    """,
+                    [session["user_id"]])
+    
+    return render_template("index.html",
+                           games=games,
+                           user_id=session["user_id"])
     
 @app.get("/about")
 def get_about():

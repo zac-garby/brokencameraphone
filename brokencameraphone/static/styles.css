@@ -83,6 +83,10 @@ div.split > * {
     overflow-x: hidden;
 }
 
+code {
+    font-family: monospace;
+}
+
 ul.game-list {
     display: flex;
     list-style: none;

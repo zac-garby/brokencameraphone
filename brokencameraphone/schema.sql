@@ -3,7 +3,9 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     display_name TEXT NOT NULL,
-    password CHAR(60) NOT NULL
+    password CHAR(60) NOT NULL,
+    has_confirmed_email INTEGER NOT NULL,
+    email_confirmation_code TEXT NOT NULL
 );
 
 DROP TABLE IF EXISTS games;
