@@ -100,3 +100,8 @@ def get_archive():
     return render_template("archive.html",
                             games=games,
                             user_id=session["user_id"])
+
+@app.errorhandler(404)
+def error_404(e):
+    user_id = session["user_id"] if "user_id" in session else None
+    return render_template("404.html", user_id=user_id)
