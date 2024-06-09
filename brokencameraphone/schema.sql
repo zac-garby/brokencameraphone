@@ -3,9 +3,9 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     display_name TEXT NOT NULL,
-    password CHAR(60) NOT NULL
+    password CHAR(60) NOT NULL,
     has_confirmed_email INTEGER NOT NULL,
-    email_confirmation_code TEXT NOT NULL
+    email_confirmation_code TEXT NOT NULL,
 
     photos_submitted INTEGER DEFAULT 0 NOT NULL,
     games_played INTEGER DEFAULT 0 NOT NULL,
@@ -121,7 +121,7 @@ CREATE TABLE webhooks (
 
     user_id INTEGER NOT NULL,
     webhook TEXT NOT NULL,
-    display_name TEXT NOT NULL
+    display_name TEXT NOT NULL,
 
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
