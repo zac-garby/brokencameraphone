@@ -236,11 +236,16 @@ ul.flashes {
     gap: 10px;
 }
 
-ul.flashes li {
+ul.flashes li, div#error {
     background-color: rgb(255, 250, 228);
     width: 100%;
     padding: 16px;
     border-radius: 10px;
+}
+
+div#error {
+    background-color: rgb(255, 237, 228);
+    margin-bottom: 10px;
 }
 
 ul#players {
