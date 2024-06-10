@@ -18,6 +18,7 @@ from werkzeug.utils import redirect
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "bmp"}
 MAX_IMAGE_SIZE = (2048, 2048)
 MAX_IMAGE_KB = 256
+MAX_PROMPT_LENGTH = 128
 
 def register_routes(app: Flask):
     @app.get("/game/<joincode>")
@@ -68,7 +69,8 @@ def register_routes(app: Flask):
                 previous_submission=get_previous_submission(joincode, participant),
                 recent_submission=get_recent_submission(joincode, participant),
                 user_id=session["user_id"],
-                is_owner=game['owner_id'] == session["user_id"]) # type: ignore
+                is_owner=game['owner_id'] == session["user_id"],
+                max_prompt_length=MAX_PROMPT_LENGTH) # type: ignore
         
     @app.post("/submit-prompt/<joincode>")
     @helpers.logged_in
@@ -81,6 +83,10 @@ def register_routes(app: Flask):
         
         if len(request.form["prompt"]) == 0:
             flash("Your prompt can't be empty.")
+            return redirect("/game/" + joincode)
+        
+        if len(request.form["prompt"]) > MAX_PROMPT_LENGTH:
+            flash(f"Your prompt is too long! Please limit yourself to {MAX_PROMPT_LENGTH} characters.")
             return redirect("/game/" + joincode)
         
         if participant["has_submitted"] > 0:

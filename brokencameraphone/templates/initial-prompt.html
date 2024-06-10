@@ -29,7 +29,7 @@
     Try to keep it open-ended, if possible. Let people be creative!
 </p>
 <form action="/submit-prompt/{{ game['join_code'] }}" method="post">
-    <textarea name="prompt" id="prompt" rows="3"></textarea>
+    <textarea name="prompt" id="prompt" rows="3" maxlength="{{ max_prompt_length }}"></textarea>
     <input type="submit" value="Send prompt">
 </form>
 {% endif %}
