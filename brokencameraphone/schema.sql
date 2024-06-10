@@ -5,7 +5,8 @@ CREATE TABLE users (
     display_name TEXT NOT NULL,
     password CHAR(60) NOT NULL,
     has_confirmed_email INTEGER NOT NULL,
-    email_confirmation_code TEXT NOT NULL
+    email_confirmation_code TEXT NOT NULL,
+    last_email_timestamp INTEGER
 );
 
 DROP TABLE IF EXISTS games;

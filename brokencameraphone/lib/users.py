@@ -96,7 +96,10 @@ def register_routes(app: Flask):
 
         flash(f"Your account has been made! Now you'll have to confirm your email: check your inbox at {email}.")
 
-        send_confirmation_email(email, confirmation_code)
+        ok, err = send_confirmation_email(
+            session["user_id"], confirmation_code)
+        if not ok:
+            flash(f"Couldn't send confirmation email. {err}")
 
         return redirect(url_for("index"))
     
@@ -138,10 +141,14 @@ def register_routes(app: Flask):
         if user == None:
             return redirect(url_for("index"))
         
-        send_confirmation_email(session["email"],
-                                user["email_confirmation_code"]) # type: ignore
+        ok, err = send_confirmation_email(
+            session["user_id"],
+            user["email_confirmation_code"]) # type: ignore
         
-        flash("Confirmation email re-sent. Please give it a few minutes to be delivered.")
+        if ok:
+            flash("Confirmation email re-sent. Please give it a few minutes to be delivered.")
+        else:
+            flash(f"Couldn't resend confirmation. {err}") # type: ignore
         
         return redirect(url_for("index"))
 
@@ -151,8 +158,8 @@ def register_routes(app: Flask):
         del(session["user_id"])
         return redirect(url_for("index"))
 
-def send_confirmation_email(email, confirmation_code):
+def send_confirmation_email(user_id, confirmation_code):
     url = current_app.config["ROOT_URL"] + "/verify/" + confirmation_code
-    mailing.send_email(email,
-                       CONFIRMATION_SUBJECT,
-                       CONFIRMATION_EMAIL.format(url=url))
+    return mailing.send_email(user_id,
+                              CONFIRMATION_SUBJECT,
+                              CONFIRMATION_EMAIL.format(url=url))
