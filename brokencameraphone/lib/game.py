@@ -188,6 +188,40 @@ def register_routes(app: Flask):
 
         return redirect("/game/" + joincode)
     
+    @app.get("/unsubmit/<joincode>")
+    @helpers.logged_in
+    @helpers.with_game("game")
+    @helpers.with_participant("participant")
+    def get_unsubmit(joincode, participant, game):
+        if not participant["has_submitted"]:
+            return redirect("/game/" + joincode)
+        
+        old_submission = get_recent_submission(joincode, participant)
+        if old_submission == None:
+            return redirect("/game/" + joincode)
+
+        db.query(
+        """
+        delete from submissions
+        where id = ?
+        """, [old_submission["id"]], commit=True) # type: ignore
+
+        db.query(
+        """
+        update participants
+        set has_submitted = 0
+        where user_id = ?
+        """, [session["user_id"]], commit=True)
+
+        photo_path = old_submission["photo_path"] # type: ignore
+        if photo_path is not None:
+            real_path = os.path.join(app.config["UPLOAD_FOLDER"], photo_path)
+            os.remove(real_path)
+
+        flash("You've successfully undone your submission.")
+
+        return redirect("/game/" + joincode)
+
     @app.get("/photo/<path>")
     def get_photo(path):
         return send_from_directory(app.config["UPLOAD_FOLDER"], path)

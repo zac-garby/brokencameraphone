@@ -25,3 +25,11 @@
 </form>
 {% endif %}
 {% endblock %}
+
+{% block lobby_controls %}
+{% if participant.has_submitted == 1 %}
+<li class="form">
+    <a href="/unsubmit/{{ game['join_code'] }}">Unsubmit</a>
+</li>
+{% endif %}
+{% endblock %}
