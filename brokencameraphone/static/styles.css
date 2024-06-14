@@ -413,3 +413,27 @@ footer p {
 footer, footer * {
     color: rgb(198, 163, 163);
 }
+
+.right.align {
+    text-align: right;
+}
+
+.regular {
+    font-weight: normal;
+}
+
+.top {
+    margin-top: 0.35rem;
+    margin-bottom: auto;
+}
+
+select {
+    font-size: 1rem;
+}
+
+select textarea {
+    padding: 8px;
+    resize: none;
+    border-radius: 5px;
+    font-size: 1rem;
+}

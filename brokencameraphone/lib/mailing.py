@@ -3,9 +3,9 @@ import boto3
 from botocore.exceptions import ClientError
 from flask import current_app, g
 
-AWS_REGION = "eu-west-2"
+AWS_REGION = "eu-north-1"
 
-EMAIL_SENDER = "Whispering Cameraphone <noreply@whisperingcameraphone.com>"
+EMAIL_SENDER = "Whispering Cameraphone <oliver@olivermalkin.co.uk>"
 EMAIL_CHARSET = "UTF-8"
 
 def get_aws():

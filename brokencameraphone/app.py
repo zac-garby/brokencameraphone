@@ -2,7 +2,7 @@ import os
 import brokencameraphone.lib.db as db
 import brokencameraphone.lib.helpers as helpers
 
-from brokencameraphone.lib import user, users, lobby, game
+from brokencameraphone.lib import users, lobby, game
 
 from flask import Flask, session
 from flask.helpers import url_for
@@ -33,7 +33,6 @@ db.init_app(app)
 users.register_routes(app)
 lobby.register_routes(app)
 game.register_routes(app)
-user.register_routes(app)
 
 @app.route("/")
 def index():
@@ -72,7 +71,7 @@ def index():
     return render_template("index.html",
                            games=games,
                            user_id=session["user_id"])
-    
+
 @app.get("/about")
 def get_about():
     if "user_id" in session:

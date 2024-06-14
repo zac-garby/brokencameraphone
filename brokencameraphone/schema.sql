@@ -4,14 +4,19 @@ CREATE TABLE users (
     email TEXT UNIQUE NOT NULL,
     display_name TEXT NOT NULL,
     password CHAR(60) NOT NULL,
-    has_confirmed_email INTEGER NOT NULL,
-    email_confirmation_code TEXT NOT NULL,
+    has_confirmed_email INTEGER DEFAULT 0 NOT NULL,
+    email_confirmation_code TEXT,
+
+    -- Used when changing your email address
+    new_email_temp TEXT UNIQUE DEFAULT NULL,
+    new_email_code TEXT DEFAULT NULL,
 
     photos_submitted INTEGER DEFAULT 0 NOT NULL,
     games_played INTEGER DEFAULT 0 NOT NULL,
 
     -- Does this user show their stats on their profile?
-    show_stats TINYINT DEFAULT 0 NOT NULL
+    -- Defaults to yes
+    show_stats TINYINT DEFAULT 1 NOT NULL
 );
 
 DROP TABLE IF EXISTS games;
@@ -121,6 +126,8 @@ CREATE TABLE webhooks (
 
     user_id INTEGER NOT NULL,
     webhook TEXT NOT NULL,
+
+    -- User friendly name for the webhook
     display_name TEXT NOT NULL,
 
     FOREIGN KEY (user_id) REFERENCES users (id)

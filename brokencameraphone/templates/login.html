@@ -15,14 +15,19 @@
             <h2>Login</h2>
             <input type="email" name="email" id="email" placeholder="Your email address">
             <input type="password" name="password" id="password" placeholder="Your password">
-            <input type="submit" value="Go!">
+            <div class="row">
+                <input type="submit" name="submit" value="Go!">
+                {% if forgo_passwd %}
+                    <input class="right align" type="submit" name="forgot_passwd" value="Forgot password?">
+                {% endif %}
+            </div>
         </form>
     </div>
     <div>
         <form action="/register" method="post">
             <h2>Register</h2>
-            <input type="email" name="email" id="email" placeholder="Your email address">
-            <input type="text" name="name" id="name" placeholder="Your display name">
+            <input type="email" name="email" id="email" placeholder="Your email address" {% if email %} value = {{ email }} {% endif %}>
+            <input type="text" name="name" id="name" placeholder="Your display name" {% if uname %} value = {{ uname }} {% endif %}>
             <input type="password" name="password" id="password" placeholder="Your new password">
             <input type="submit" value="Register">
         </form>
