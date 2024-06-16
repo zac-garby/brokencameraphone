@@ -6,6 +6,7 @@ CREATE TABLE users (
     password CHAR(60) NOT NULL,
     has_confirmed_email INTEGER NOT NULL,
     email_confirmation_code TEXT NOT NULL,
+    reset_password_code TEXT,
     last_email_timestamp INTEGER
 );
 
