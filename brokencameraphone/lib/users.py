@@ -2,11 +2,14 @@ import brokencameraphone.lib.db as db
 import brokencameraphone.lib.mailing as mailing
 import bcrypt
 import uuid
+import string
 
 from flask import Flask, session, request, flash, current_app
 from flask.helpers import url_for
 from flask.templating import render_template
 from werkzeug.utils import redirect
+
+DISPLAY_NAME_ALLOWED_CHARS = string.ascii_letters + string.digits + " _-!+=?<>():;#"
 
 CONFIRMATION_SUBJECT = "Welcome to Whispering Cameraphone!"
 CONFIRMATION_EMAIL = """<p>Welcome to Whispering Cameraphone!</p>
@@ -77,6 +80,9 @@ def register_routes(app: Flask):
         
         if len(name) < 3:
             return render_template("login.html", error="Your display name must be at least 3 characters long.")
+        
+        if not all(ch in DISPLAY_NAME_ALLOWED_CHARS for ch in name):
+            return render_template("login.html", error=f"Your display must only contain the following characters: {DISPLAY_NAME_ALLOWED_CHARS}")
 
         hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
