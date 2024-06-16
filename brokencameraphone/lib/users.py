@@ -1,8 +1,6 @@
 import brokencameraphone.lib.db as db
 import brokencameraphone.lib.mailing as mailing
-import bcrypt
-import uuid
-import re
+import bcrypt, uuid, re, time
 
 from flask import Flask, session, request, flash, current_app, abort
 from flask.helpers import url_for
@@ -26,13 +24,6 @@ if you can't click it).</p>
 Zac
 (<a href="https://zacgarby.co.uk">https://zacgarby.co.uk</a>)
 </p>
-"""
-
-PASSWORD_CHANGE_SUBJECT = """Password updated"""
-PASSWORD_CHANGE_BODY = f"""<p>Hey {session["name"]},</p>
-
-<p>This is an automated email to let you know your password has been updated. If you did not update your password please change it now as your account chould be breached.</p>
-
 """
 
 def register_routes(app: Flask):
@@ -72,7 +63,8 @@ def register_routes(app: Flask):
     @app.post("/register")
     def register_post():
         email = request.form["email"]
-        password = request.form["password"]
+        password = request.form["passwd"]
+        password_check = request.form["passwd_check"]
         name = request.form["name"]
 
         user = db.query("select * from users where email = ?",
@@ -81,12 +73,17 @@ def register_routes(app: Flask):
         if user is not None:
             return render_template("login.html", error="A user already exists with that email! Is it you..?")
 
-        if (e_name := check_name(name=name)) is not False:
-            return render_template("login.html", error=e_name, email=email)
+        if (err_name := check_name(name=name)) is not False:
+            return render_template("login.html", error=err_name, email=email)
+        
+        if password != password_check:
+            return render_template("login.html", error="Passwords do not match.")
 
-        if (e_pass := check_password(password=password)) is not False:
-            return render_template("login.html", error=e_pass, email=email, uname = name)
+        if (err_pass := check_password(password=password)) is not False:
+            return render_template("login.html", error=err_pass, email=email, uname = name)
 
+        #return render_template("login.html", error="TESTING ENABLED. REGISTRATION DISSABLED.", email=email, uname = name)
+    
         hashed = hash_password(password)
 
         confirmation_code = str(uuid.uuid4())
@@ -180,17 +177,13 @@ def register_routes(app: Flask):
     def profile_get(name):
         get_user = db.query("select * from users where display_name = ?", (name,), one=True)
         if get_user is not None: # The user exists in the database
-            get_webhooks = [(x["display_name"], x["webhook"]) for x in db.query("select * from webhooks where user_id = ?", (session["user_id"],))]
+            # Should this user show their stats?
+            show_stats = True if get_user["show_stats"] == 1 else False
             if "user_id" in session: # Someone logged in?
-                if get_user["id"] == session["user_id"]: # The user matches the profile?
-                    own_profile = True
-                else:
-                    own_profile = False
+                get_webhooks = [(x["display_name"], x["webhook"]) for x in db.query("select * from webhooks where user_id = ?", (session["user_id"],))]
 
-                if get_user["show_stats"] == 1:
-                    show_stats = True
-                else:
-                    show_stats = False
+                # The user matches the profile?
+                own_profile = True if get_user["id"] == session["user_id"] else False
 
                 return render_template("user.html", 
                                         user_id = session["user_id"],
@@ -202,7 +195,7 @@ def register_routes(app: Flask):
             else:
                 return render_template("user.html", 
                                         name = name,
-                                        own_profile = own_profile)
+                                        show_stats = show_stats)
         else:
             abort(404)
 
@@ -246,10 +239,10 @@ def register_routes(app: Flask):
         if (curr_passwd := request.form.get("current_passwd")) == "":
             flash("You must enter you current password.")
             fail = True
-        elif (new_passwd := request.form.get("new_passwd")) == "":
+        elif (new_passwd := request.form.get("passwd")) == "":
             flash("You must enter a new password.")
             fail = True
-        elif (new_passwd_check := request.form.get("new_passwd_check")) == "":
+        elif (new_passwd_check := request.form.get("passwd_check")) == "":
             flash("You must repeat your new password.")
             fail = True
         elif new_passwd != new_passwd_check:
@@ -264,8 +257,8 @@ def register_routes(app: Flask):
                 if validate_password(curr_passwd, user_id = session["user_id"]): # Is the current password correct?
                     hashed_passwd = hash_password(new_passwd)
                     db.query("update users set password = ? where id = ?", (str(hashed_passwd, encoding="utf-8 "), session["user_id"]), commit=True)
-                    flash("Your password has been updated.")
-                    
+                    flash("Your password has been updated. Add send email notif.")
+                    #### SEND EMAIL ####
                 else:
                     flash("Current password is incorrect.")
             else:
@@ -294,9 +287,9 @@ def register_routes(app: Flask):
 
             else: # Update current selected one
                 if (err := check_webhook_submission(webhook, friendly, update = True)) is False: # Add new webhook to db     
-                    db.query("update webhooks set webhook = ?, display_name = ? where user_id = ? and display_name = ?",
+                    test = db.query("update webhooks set webhook = ?, display_name = ? where user_id = ? and display_name = ?",
                             (webhook, friendly, session["user_id"], option), commit = True)
-                    flash(f"Webhook '{friendly}' has been updated.")
+                    flash(f"Webhook '{friendly}' has been updated. {test}")
                 else:
                     flash(err)
 
@@ -320,12 +313,22 @@ def send_confirmation_email(email, confirmation_code):
 
 def check_password(password: str) -> str:
     """
-    Checks password for certain conditions. Will return error as a string if there is one. Else returns False.
+    Checks password for certain conditions. This does not check hashes!
+    Will return error as a string if there is one. Else returns False.
     """
 
+    min_length = 6
+    pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$"
+                                            # Must contain at least one symbol
+                                            # only have alphanumeric characters
+                                            # one number
+                                            # one capital
+
     error = False
-    if len(password) < 6:
-        error = "Your password must be at least 6 characters long"
+    if len(password) < min_length:
+        error = f"Your password must be at least {min_length} characters long"
+    elif re.fullmatch(pattern, password) is None:
+        error = f"Password must contain at least 1 symbol, 1 number, 1 upper and lowercase letter."
 
     return error
 
@@ -351,11 +354,11 @@ def validate_password(passwd: str, hashed_passwd: str = None, user_id: int = Non
     """
     Checks the users password against the database and returns True if valid, and False if not.
 
-    Must be given a `password`. Must also provide `hashed_password` or `user_id` for the check.
+    Must be given a `password`. Must also provide `hashed_password` or `user_id` for a lookup.
     """
 
     if hashed_passwd is None: # Look up the hashed password from the database
-        hashed_passwd = db.query("select * from users where id = ?", (user_id,), one = True)["password"]
+        hashed_passwd = db.query("select password from users where id = ?", (user_id,), one = True)["password"]
 
     return bcrypt.checkpw(
         passwd.encode("utf-8"),

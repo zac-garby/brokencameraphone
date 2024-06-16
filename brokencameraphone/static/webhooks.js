@@ -1,0 +1,2 @@
+var webhooks = []
+var friendly = []

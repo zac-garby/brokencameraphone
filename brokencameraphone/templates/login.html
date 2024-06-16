@@ -13,12 +13,12 @@
     <div>
         <form action="/login" method="post">
             <h2>Login</h2>
-            <input type="email" name="email" id="email" placeholder="Your email address">
-            <input type="password" name="password" id="password" placeholder="Your password">
+            <input type="email" name="email" id="email" placeholder="Your email address" required>
+            <input type="password" name="password" id="password" placeholder="Your password" required>
             <div class="row">
                 <input type="submit" name="submit" value="Go!">
                 {% if forgo_passwd %}
-                    <input class="right align" type="submit" name="forgot_passwd" value="Forgot password?">
+                    <a class="right align" href="#">
                 {% endif %}
             </div>
         </form>
@@ -26,12 +26,29 @@
     <div>
         <form action="/register" method="post">
             <h2>Register</h2>
-            <input type="email" name="email" id="email" placeholder="Your email address" {% if email %} value = {{ email }} {% endif %}>
-            <input type="text" name="name" id="name" placeholder="Your display name" {% if uname %} value = {{ uname }} {% endif %}>
-            <input type="password" name="password" id="password" placeholder="Your new password">
-            <input type="submit" value="Register">
+            <input type="email" name="email" id="email" placeholder="Your email address" {% if email %} value = {{ email }} {% endif %} required>
+            <input type="text" name="name" id="name" placeholder="Your display name" spellcheck="false" {% if uname %} value = {{ uname }} {% endif %} required>
+            <input type="password" name="passwd" id="passwd" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$" placeholder="Your password" required>
+            <input type="password" name="passwd_check" id="passwd_check" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$" placeholder="Repeat password" required>
+
+            <div id="message" class="hidden">
+                <p><b>Password must contain:</b></p>
+                <ul class="no bullet">
+                    <li id="letter" class="">A lowercase letter</li>
+                    <li id="capital" class="">A uppercase letter</li>
+                    <li id="number" class="">A number</li>
+                    <li id="symbol" class="">A symbol</li>
+                    <li id="length" class="">Minimum 6 character</li>
+                    <br />
+                    <li id="match" class="">Passwords must match</li>
+                </ul>
+            </div>
+
+            <input type="submit" id="submit" value="Register" disabled>           
         </form>
     </div>
 </div>
+
+<script src="/static/password.js"></script>
 
 {% endblock %}

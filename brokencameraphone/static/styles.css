@@ -228,6 +228,15 @@ input[type=submit]:hover {
     text-decoration: underline;
 }
 
+input[type=submit]:disabled {
+    color: grey;
+}
+
+input[type=submit]:disabled:hover {
+    text-decoration: none;
+    cursor: not-allowed;
+}
+
 h1, h2, h3 {
     margin-top: 0;
 }
@@ -436,4 +445,14 @@ select textarea {
     resize: none;
     border-radius: 5px;
     font-size: 1rem;
+}
+
+.hidden {
+    display: none;
+}
+
+ul.no.bullet {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 }

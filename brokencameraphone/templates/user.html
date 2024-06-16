@@ -11,17 +11,31 @@
     <div class="forms wide">
         <form action="/user/update_details" method="post">
             <h2>Change your details</h2>
-            <input type="text" name="new_username" id="new_username" placeholder="Your new display name">
+            <input type="text" name="new_username" id="new_username" placeholder="Your new display name" spellcheck="false">
             <input type="email" name="new_email" id="new_email" placeholder="Your new email">
             <input type="submit" value="Update">
         </form>
 
         <form action="/user/update_password" method="post">
             <h2>Change your password</h2>
-            <input type="password" name="current_passwd" id="current_passwd" placeholder="Your current password">
-            <input type="password" name="new_passwd" id="new_passwd" placeholder="Your new password">
-            <input type="password" name="new_passwd_check" id="new_passwd_check" placeholder="Repeat new password">
-            <input type="submit" value="Update">
+            <input type="password" name="current_passwd" id="current_passwd" placeholder="Your current password" required>
+            <input type="password" name="passwd" id="passwd" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$" placeholder="Your new password" required>
+            <input type="password" name="passwd_check" id="passwd_check" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$" placeholder="Repeat new password" required>
+
+            <div id="message" class="hidden">
+                <p><b>Password must contain:</b></p>
+                <ul class="no bullet">
+                    <li id="letter" class="">A lowercase letter</li>
+                    <li id="capital" class="">A uppercase letter</li>
+                    <li id="number" class="">A number</li>
+                    <li id="symbol" class="">A symbol</li>
+                    <li id="length" class="">Minimum 6 character</li>
+                    <br />
+                    <li id="match" class="">Passwords must match</li>
+                </ul>
+            </div>
+
+            <input type="submit" id="submit" value="Update" disabled>
         </form>
     </div> 
 
@@ -35,8 +49,8 @@
                     <option value="{{ webhooks[i][0] }}">{{ webhooks[i][0] }}</option>
                 {% endfor %}
             </select>
-            <input type="text" name="friendly_name" id="friendly_name" placeholder="Friendly name">
-            <input type="text" name="webhook_name" id="webhook_name" placeholder="Webhook endpoint URL">
+            <input type="text" name="friendly_name" id="friendly_name" placeholder="Friendly name" required>
+            <input type="text" name="webhook_name" id="webhook_name" placeholder="Webhook endpoint URL" required>
             <br>
             <div class="row">
                 <input type="submit" name="submit" value="Submit">
@@ -55,13 +69,14 @@
     </div> 
 </div>
 
+<script src="/static/password.js"></script>
 {% else %}
 <p>Welcome to {{name}}'s profile!<p></p>
 {% endif %}
 
 {% if user_id %}
 <div class="grid">
-    <p><a href="/logout">Log out</a> PLACEHOLDER <a href="#">Delete my personal data</a> PLACEHOLDER <a href="#">Delete my account</a></p>
+    <p><a href="/logout">Log out</a> PLACEHOLDER <a href="#">Delete my personal data</a> PLACEHOLDER <a href="#">Download my data</a> PLACEHOLDER <a href="#">Delete my account</a></p>
 </div>
 {% endif %}
 

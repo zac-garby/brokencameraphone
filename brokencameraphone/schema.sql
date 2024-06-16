@@ -2,14 +2,18 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
-    display_name TEXT NOT NULL,
+    display_name TEXT COLLATE NOCASE NOT NULL,
     password CHAR(60) NOT NULL,
     has_confirmed_email INTEGER DEFAULT 0 NOT NULL,
-    email_confirmation_code TEXT,
+    email_confirmation_code TEXT UNIQUE,
+    email_expire_time INTEGER DEFAULT NULL,
 
     -- Used when changing your email address
     new_email_temp TEXT UNIQUE DEFAULT NULL,
     new_email_code TEXT DEFAULT NULL,
+
+    -- UNIX time stamp for account deletion datetime
+    delete_after INTEGER DEFAULT NULL,
 
     photos_submitted INTEGER DEFAULT 0 NOT NULL,
     games_played INTEGER DEFAULT 0 NOT NULL,
@@ -122,8 +126,6 @@ CREATE TABLE archived (
 
 DROP TABLE IF EXISTS webhooks;
 CREATE TABLE webhooks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-
     user_id INTEGER NOT NULL,
     webhook TEXT NOT NULL,
 
@@ -131,4 +133,7 @@ CREATE TABLE webhooks (
     display_name TEXT NOT NULL,
 
     FOREIGN KEY (user_id) REFERENCES users (id)
+
+    -- One user cannot have the same webhook twice so this is the primary key
+    PRIMARY KEY (user_id, webhook)
 );
