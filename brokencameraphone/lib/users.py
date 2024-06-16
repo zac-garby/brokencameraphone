@@ -13,59 +13,8 @@ from werkzeug.utils import redirect
 DISPLAY_NAME_ALLOWED_CHARS = string.ascii_letters + string.digits + " _-!+=?<>():;#"
 
 CONFIRMATION_SUBJECT = "Welcome to Whispering Cameraphone!"
-CONFIRMATION_EMAIL = """<p>Welcome to Whispering Cameraphone, {name}!</p>
-
-<p>To get started, you'll need to confirm your email. Please click
-the link below (or, copy it into your web browser's address bar
-if you can't click it).</p>
-
-<p><a href="{url}">{url}</a></p>
-
-<p>Let me know if you have any problems!</p>
-
-<p>Best,</p>
-
-<p>
-Zac
-(<a href="https://zacgarby.co.uk">https://zacgarby.co.uk</a>)
-</p>
-"""
 
 PASSWORD_RESET_SUBJECT = "Reset your password"
-PASSWORD_RESET_EMAIL = """<p>
-Hi {name}. You have requested that your password for
-<a href='https://whisperingcameraphone.com'>Whispering Cameraphone</a>
-be reset.
-</p>
-
-<ul>
-  <li>
-    <p>
-      If this was you, and you would indeed like to reset it, click
-      the link below or copy it into your browser's address bar:
-    </p>
-    <p><a href="{url}">{url}</a></p>
-  </li>
-  <li>
-    <p>
-      If you haven't requested a password reset, don't worry! Somebody
-    may be trying to get into your account, but as long as they don't
-    have access to this email's inbox, they won't be able to.
-    </p>
-</ul>
-  
-<p>
-  If you have any concerns or issues resetting your password or
-  are worried that somebody may have access to your account, please
-  get in touch.
-</p>
-  
-<p>Best,</p>
-
-<p>
-Zac
-(<a href="https://zacgarby.co.uk">https://zacgarby.co.uk</a>)
-</p>"""
 
 def register_routes(app: Flask):
     @app.get("/login")
@@ -222,7 +171,6 @@ def register_routes(app: Flask):
             ok, err = send_reset_password_email(
                 recipient["id"], # type: ignore
                 recipient["display_name"], # type: ignore
-                email,
                 code
             )
 
@@ -273,21 +221,26 @@ def register_routes(app: Flask):
 
 def send_confirmation_email(user_id, name, confirmation_code):
     url = current_app.config["ROOT_URL"] + "/verify/" + confirmation_code
-    return mailing.send_email(user_id,
-                              CONFIRMATION_SUBJECT,
-                              CONFIRMATION_EMAIL.format(
-                                  url=url,
-                                  name=name
-                              ))
 
-def send_reset_password_email(user_id, name, email, code):
+    content = render_template(
+        "mail/email-confirmation.html",
+        name=name,
+        url=url)
+    
+    return mailing.send_email(
+        user_id,
+        CONFIRMATION_SUBJECT,
+        content)
+
+def send_reset_password_email(user_id, name, code):
     url = current_app.config["ROOT_URL"] + "/reset-password/" + code
-    new_request_url = current_app.config["ROOT_URL"] + "/request-password-reset/" + email
 
-    return mailing.send_email(user_id,
-                              PASSWORD_RESET_SUBJECT,
-                              PASSWORD_RESET_EMAIL.format(
-                                  url=url,
-                                  new_request=new_request_url,
-                                  name=name
-                              ))
+    content = render_template(
+        "mail/password-reset.html",
+        name=name,
+        url=url)
+
+    return mailing.send_email(
+        user_id,
+        PASSWORD_RESET_SUBJECT,
+        content)
