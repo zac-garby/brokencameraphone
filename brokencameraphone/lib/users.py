@@ -180,7 +180,7 @@ def register_routes(app: Flask):
             # Should this user show their stats?
             show_stats = True if get_user["show_stats"] == 1 else False
             if "user_id" in session: # Someone logged in?
-                get_webhooks = [(x["display_name"], x["webhook"]) for x in db.query("select * from webhooks where user_id = ?", (session["user_id"],))]
+                get_webhooks = [(x["display_name"], x["webhook"], x["display_name"].replace(" ", "")) for x in db.query("select display_name, webhook from webhooks where user_id = ?", (session["user_id"],))]
 
                 # The user matches the profile?
                 own_profile = True if get_user["id"] == session["user_id"] else False

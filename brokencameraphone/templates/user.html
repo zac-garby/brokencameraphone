@@ -49,7 +49,7 @@
                     <option value="{{ webhooks[i][0] }}">{{ webhooks[i][0] }}</option>
                 {% endfor %}
             </select>
-            <input type="text" name="friendly_name" id="friendly_name" placeholder="Friendly name" required>
+            <input type="text" name="friendly_name" id="friendly_name" pattern="[a-zA-Z0-9 ]" placeholder="Friendly name" required>
             <input type="text" name="webhook_name" id="webhook_name" placeholder="Webhook endpoint URL" required>
             <br>
             <div class="row">
@@ -70,8 +70,15 @@
 </div>
 
 <script src="/static/password.js"></script>
+
+<script>
+    {% for i in range(0, webhook_count) %}
+        const webhook{{ webhooks[i][2]}} = "{{ webhooks[i][1] }}";
+    {% endfor %}
+</script>
+
 {% else %}
-<p>Welcome to {{name}}'s profile!<p></p>
+<p>Welcome to {{name}}'s profile!</p>
 {% endif %}
 
 {% if user_id %}
