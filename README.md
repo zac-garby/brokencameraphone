@@ -1,6 +1,6 @@
 # brokencameraphone
 
-A cool game. Play it at [https://bcp.gar.by](https://bcp.gar.by).
+A cool game. Play it at [https://whisperingcameraphone.com](https://whisperingcameraphone.com).
 
 ## Local setup for development
 
