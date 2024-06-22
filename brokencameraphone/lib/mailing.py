@@ -6,9 +6,9 @@ from botocore.exceptions import ClientError
 from datetime import datetime
 from flask import current_app, g
 
-AWS_REGION = "eu-north-1"
+AWS_REGION = "eu-west-2"
 
-EMAIL_SENDER = "Whispering Cameraphone <oliver@olivermalkin.co.uk>"
+EMAIL_SENDER = "Whispering Cameraphone <noreply@whisperingcameraphone.com>"
 EMAIL_CHARSET = "UTF-8"
 
 # minimum time to wait between sending emails to the same person (seconds)
