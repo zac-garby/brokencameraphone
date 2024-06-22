@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{% block content %}
+
+{% if own_profile == True %}
+<p>Welcome to your profile {{name}}! Here you can view and change your settings and preferences.</p>
+
+<div class="split equal">
+    <div class="forms wide">
+        <form action="/user/update_details" method="post">
+            <h2>Change your details</h2>
+            <input type="text" name="new_username" id="new_username" placeholder="Your new display name" spellcheck="false">
+            <input type="email" name="new_email" id="new_email" placeholder="Your new email">
+            <input type="submit" value="Update">
+        </form>
+
+        <form action="/user/update_password" method="post">
+            <h2>Change your password</h2>
+            <input type="password" name="current_passwd" id="current_passwd" placeholder="Your current password" required>
+            <input type="password" name="passwd" id="passwd" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$" placeholder="Your new password" required>
+            <input type="password" name="passwd_check" id="passwd_check" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$" placeholder="Repeat new password" required>
+
+            <div id="message" class="hidden">
+                <p><b>Password must contain:</b></p>
+                <ul class="no bullet">
+                    <li id="letter" class="">A lowercase letter</li>
+                    <li id="capital" class="">A uppercase letter</li>
+                    <li id="number" class="">A number</li>
+                    <li id="symbol" class="">A symbol</li>
+                    <li id="length" class="">Minimum 6 character</li>
+                    <br />
+                    <li id="match" class="">Passwords must match</li>
+                </ul>
+            </div>
+
+            <input type="submit" id="submit" value="Update" disabled>
+        </form>
+    </div> 
+
+    <div class="forms wide">
+        <form action="/user/update_webhook" method="post">
+            <h2>Change your webhooks</h2>
+            <select onchange="changeSelector()" name="webhook_selector" id="webhook_selector">
+                <option disabled selected> -- select an option -- </option>
+                <option value="add_new">Add new webhook</option>
+                {% for i in range(0, webhook_count) %}
+                    <option value="{{ webhooks[i][0] }}">{{ webhooks[i][0] }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="friendly_name" id="friendly_name" pattern="[a-zA-Z0-9\s]+" placeholder="Friendly name" required>
+            <input type="text" name="webhook_name" id="webhook_name" placeholder="Webhook endpoint URL" required>
+            <br>
+            <div class="row">
+                <input type="submit" name="submit" value="Submit">
+                <input class="right align" type="submit" name = "delete" value="Delete">
+            </div>
+        </form>
+
+        <form action="/user/update_preferences" method="post">
+            <h2>Your preferences</h2>
+            <div class="row">
+                <input class="top" type="checkbox" name="public_stats" id="public_stats" value="yes" {% if show_stats == True %} checked {% endif %}>
+                <label class="regular">Display my stats on my profile to others</label><br>
+            </div>
+            <input type="submit" value="Save">
+        </form>
+    </div> 
+</div>
+
+{% if webhook_count != 0 %}
+<script>
+    const userWebhooks = {
+    {% for i in range(0, webhook_count) %}
+        {{ webhooks[i][2] }}: "{{ webhooks[i][1] }}",
+    {% endfor %}
+    }
+</script>
+{% endif %}
+
+<script src="/static/password.js"></script>
+<script src="/static/webhooks.js"></script>
+
+{% else %}
+<p>Welcome to {{name}}'s profile!</p>
+{% endif %}
+
+{% if user_id %}
+<div class="grid">
+    <p><a href="/logout">Log out</a> PLACEHOLDER <a href="#">Delete my personal data</a> PLACEHOLDER <a href="#">Download my data</a> PLACEHOLDER <a href="#">Delete my account</a></p>
+</div>
+{% endif %}
+
+{% endblock %}

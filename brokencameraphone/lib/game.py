@@ -4,6 +4,7 @@ import brokencameraphone.lib.db as db
 import brokencameraphone.lib.helpers as helpers
 import brokencameraphone.lib.gamemode as gamemode
 import zipfile
+import tempfile
 import io
 import string
 

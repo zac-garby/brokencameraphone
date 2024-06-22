@@ -128,6 +128,10 @@ div.forms {
     gap: 10px;
 }
 
+div.forms.wide {
+    gap: 20px;
+}
+
 form.button {
     background-color: #CA5B66;
     padding: 8px;
@@ -292,6 +296,15 @@ p#gamemode-description::before {
 
 input[type=submit]:hover {
     text-decoration: underline;
+}
+
+input[type=submit]:disabled {
+    color: grey;
+}
+
+input[type=submit]:disabled:hover {
+    text-decoration: none;
+    cursor: not-allowed;
 }
 
 h1, h2, h3 {
@@ -485,4 +498,38 @@ footer p {
 
 footer, footer * {
     color: rgb(198, 163, 163);
+}
+
+.right.align {
+    text-align: right;
+}
+
+.regular {
+    font-weight: normal;
+}
+
+.top {
+    margin-top: 0.35rem;
+    margin-bottom: auto;
+}
+
+select {
+    font-size: 1rem;
+}
+
+select textarea {
+    padding: 8px;
+    resize: none;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.hidden {
+    display: none;
+}
+
+ul.no.bullet {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 }

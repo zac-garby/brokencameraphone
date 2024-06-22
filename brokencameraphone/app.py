@@ -71,7 +71,7 @@ def index():
     return render_template("index.html",
                            games=games,
                            user_id=session["user_id"])
-    
+
 @app.get("/about")
 def get_about():
     if "user_id" in session:
