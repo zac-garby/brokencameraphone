@@ -42,7 +42,7 @@
     <div class="forms wide">
         <form action="/user/update_webhook" method="post">
             <h2>Change your webhooks</h2>
-            <select name="webhook_selector">
+            <select onchange="changeSelector()" name="webhook_selector" id="webhook_selector">
                 <option disabled selected> -- select an option -- </option>
                 <option value="add_new">Add new webhook</option>
                 {% for i in range(0, webhook_count) %}
@@ -61,7 +61,7 @@
         <form action="/user/update_preferences" method="post">
             <h2>Your preferences</h2>
             <div class="row">
-                <input class="top" type="checkbox" name="public_stats" id="public_stats" value="yes" {% if show_stats == True %}checked{% endif %}>
+                <input class="top" type="checkbox" name="public_stats" id="public_stats" value="yes" {% if show_stats == True %} checked {% endif %}>
                 <label class="regular">Display my stats on my profile to others</label><br>
             </div>
             <input type="submit" value="Save">
@@ -69,13 +69,18 @@
     </div> 
 </div>
 
-<script src="/static/password.js"></script>
-
+{% if webhook_count != 0 %}
 <script>
+    const userWebhooks = {
     {% for i in range(0, webhook_count) %}
-        const webhook{{ webhooks[i][2]}} = "{{ webhooks[i][1] }}";
+        {{ webhooks[i][2] }}: "{{ webhooks[i][1] }}",
     {% endfor %}
+    }
 </script>
+{% endif %}
+
+<script src="/static/password.js"></script>
+<script src="/static/webhooks.js"></script>
 
 {% else %}
 <p>Welcome to {{name}}'s profile!</p>

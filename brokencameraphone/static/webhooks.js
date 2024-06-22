@@ -1,8 +1,15 @@
-var webhookData = []
-var webhooks = []
-var friendly = []
+var friendly = document.getElementById("friendly_name");
+var webhook = document.getElementById("webhook_name");
 
-for (let i = 0; i < webhookData.length; i++) {
-    webhooks.push(webhookData[i][0]);
-    friendly.push(webhookData[i][0]);
+function changeSelector() {
+    let dropdown = document.getElementById("webhook_selector").value;
+
+    if (dropdown == "add_new") {
+        friendly.value = "";
+        webhook.value = "";
+    }
+    else {
+        friendly.value = dropdown;
+        webhook.value = userWebhooks[dropdown];
+    }
 }
