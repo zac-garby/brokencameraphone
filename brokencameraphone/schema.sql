@@ -135,7 +135,7 @@ CREATE TABLE archived (
 DROP TABLE IF EXISTS webhooks;
 CREATE TABLE webhooks (
     user_id INTEGER NOT NULL,
-    webhook TEXT NOT NULL,
+    webhook TEXT COLLATE NOCASE NOT NULL,
 
     -- User friendly name for the webhook
     display_name TEXT NOT NULL,
