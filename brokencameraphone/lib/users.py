@@ -285,7 +285,7 @@ def register_routes(app: Flask):
                 if (err := check_webhook_submission(webhook, friendly, update = True)) is False: # Add new webhook to db     
                     test = db.query("update webhooks set webhook = ?, display_name = ? where user_id = ? and display_name = ?",
                             (webhook, friendly, session["user_id"], option), commit = True)
-                    flash(f"Webhook '{friendly}' has been updated. {test}")
+                    flash(f"Webhook '{friendly}' has been updated.")
                 else:
                     flash(err)
 
