@@ -431,7 +431,7 @@ def check_webhook_submission(webhook: str, friendly: str, update: bool = False):
     Use `update = True` when updating a current webhook.
     """
 
-    pattern = r'[^a-zA-Z0-9 ]'
+    pattern = r'[^a-zA-Z0-9\s]'
     
     check_friendly = db.query("select * from webhooks where user_id = ? and display_name = ?", 
             (session["user_id"], friendly), one = True)
