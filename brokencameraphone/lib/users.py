@@ -129,7 +129,7 @@ def register_routes(app: Flask):
         
         user = db.query(
         """
-        select email_confirmation_code
+        select *
         from users
         where id = ?
         """, [session["user_id"]], one=True)
