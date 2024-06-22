@@ -1,5 +1,7 @@
 import brokencameraphone.lib.db as db
 import brokencameraphone.lib.mailing as mailing
+import brokencameraphone.lib.helpers as helpers
+
 import bcrypt, uuid, re, time
 
 from flask import Flask, session, request, flash, current_app, abort
@@ -8,23 +10,8 @@ from flask.templating import render_template
 from werkzeug.utils import redirect
 
 CONFIRMATION_SUBJECT = "Welcome to Whispering Cameraphone!"
-CONFIRMATION_EMAIL = """<p>Welcome to Whispering Cameraphone!</p>
 
-<p>To get started, you'll need to confirm your email. Please click
-the link below (or, copy it into your web browser's address bar
-if you can't click it).</p>
-
-<p><a href="{url}">{url}</a></p>
-
-<p>Let me know if you have any problems!</p>
-
-<p>Best,</p>
-
-<p>
-Zac
-(<a href="https://zacgarby.co.uk">https://zacgarby.co.uk</a>)
-</p>
-"""
+PASSWORD_RESET_SUBJECT = "Reset your password"
 
 def register_routes(app: Flask):
     @app.get("/login")
@@ -81,11 +68,8 @@ def register_routes(app: Flask):
 
         if (err_pass := check_password(password=password)) is not False:
             return render_template("login.html", error=err_pass, email=email, uname = name)
-
-        #return render_template("login.html", error="TESTING ENABLED. REGISTRATION DISSABLED.", email=email, uname = name)
     
         hashed = hash_password(password)
-
         confirmation_code = str(uuid.uuid4())
 
         db.query("""
@@ -103,7 +87,14 @@ def register_routes(app: Flask):
 
         flash(f"Your account has been made! Now you'll have to confirm your email: check your inbox at {email}.")
 
-        send_confirmation_email(email, confirmation_code)
+        ok, err = send_confirmation_email(
+            session["user_id"],
+            name,
+            confirmation_code
+        )
+
+        if not ok:
+            flash(f"Couldn't send confirmation email. {err}")
 
         return redirect(url_for("index"))
     
@@ -146,10 +137,15 @@ def register_routes(app: Flask):
         if user == None:
             return redirect(url_for("index"))
         
-        send_confirmation_email(session["email"],
-                                user["email_confirmation_code"]) # type: ignore
+        ok, err = send_confirmation_email(
+            session["user_id"],
+            user["display_name"], # type: ignore
+            user["email_confirmation_code"]) # type: ignore
         
-        flash("Confirmation email re-sent. Please give it a few minutes to be delivered.")
+        if ok:
+            flash("Confirmation email re-sent. Please give it a few minutes to be delivered.")
+        else:
+            flash(f"Couldn't resend confirmation. {err}") # type: ignore
         
         return redirect(url_for("index"))
 
@@ -302,15 +298,71 @@ def register_routes(app: Flask):
 
         return redirect("/user")
 
+    @app.get("/reset-password")
+    def request_reset_password():
+        email = request.args.get("email", default="")
+
+        recipient = db.query(
+        """
+        select * from users
+        where email = ?
+        """, [email], one=True)
+
+        if recipient != None:
+            code = str(uuid.uuid4())
+
+            ok, err = send_reset_password_email(
+                recipient["id"], # type: ignore
+                recipient["display_name"], # type: ignore
+                code
+            )
+
+            if not ok:
+                flash(f"Couldn't send password reset confirmation email. {err}")
+                return redirect(url_for("index"))
+            
+            db.query(
+            """
+            update users
+            set reset_password_code = ?
+            where id = ?
+            """, [code, recipient["id"]], commit=True) # type: ignore
+        
+        flash(f"If the given email {email} is associated with an account, we've sent a confirmation email to that address. Check that email for the next steps in resetting your password.")
+
+        return redirect(url_for("index"))
+    
+    @app.get("/reset-password/<code>")
+    def get_reset_password(code):
+        user = db.query(
+        """
+        select * from users
+        where reset_password_code = ?
+        """, [code], one=True)
+
+        if user == None:
+            flash("The given password reset code is not valid! Maybe you've requested a new one since, or typed this one into the address bar incorrectly?")
+            return redirect(url_for("index"))
+        
+        return render_template("reset-password.html", user=user, code=code, user_id=user["id"]) # type: ignore
+    
+    @app.post("/reset-password/<code>")
+    def post_reset_password(code):
+        password = request.form["password"]
+        hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+
+        db.query(
+        """
+        update users
+        set password = ?, reset_password_code = NULL
+        where reset_password_code = ?
+        """, [hashed, code])
+
+        flash("Your password has been successfully updated.")
+
+        return redirect(url_for("index"))
 
 # Useful functions
-
-def send_confirmation_email(email, confirmation_code):
-    url = current_app.config["ROOT_URL"] + "/verify/" + confirmation_code
-    mailing.send_email(email,
-                       CONFIRMATION_SUBJECT,
-                       CONFIRMATION_EMAIL.format(url=url))
-
 def check_password(password: str) -> str:
     """
     Checks password for certain conditions. This does not check hashes!
@@ -400,3 +452,29 @@ def check_webhook_submission(webhook: str, friendly: str, update: bool = False):
         return("Your friendly name can be up to 20 characters long.")
     
     return False
+
+def send_confirmation_email(user_id, name, confirmation_code):
+    url = current_app.config["ROOT_URL"] + "/verify/" + confirmation_code
+
+    content = render_template(
+        "mail/email-confirmation.html",
+        name=name,
+        url=url)
+    
+    return mailing.send_email(
+        user_id,
+        CONFIRMATION_SUBJECT,
+        content)
+
+def send_reset_password_email(user_id, name, code):
+    url = current_app.config["ROOT_URL"] + "/reset-password/" + code
+
+    content = render_template(
+        "mail/password-reset.html",
+        name=name,
+        url=url)
+
+    return mailing.send_email(
+        user_id,
+        PASSWORD_RESET_SUBJECT,
+        content)

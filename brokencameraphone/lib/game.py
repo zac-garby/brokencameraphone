@@ -2,9 +2,11 @@ import os
 import random
 import brokencameraphone.lib.db as db
 import brokencameraphone.lib.helpers as helpers
+import brokencameraphone.lib.gamemode as gamemode
 import zipfile
 import tempfile
 import io
+import string
 
 from PIL import Image
 from io import BytesIO
@@ -19,6 +21,8 @@ from werkzeug.utils import redirect
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "bmp"}
 MAX_IMAGE_SIZE = (2048, 2048)
 MAX_IMAGE_KB = 256
+MAX_PROMPT_LENGTH = 128
+PHOTO_FILENAME_RANDOM_LENGTH = 10
 
 def register_routes(app: Flask):
     @app.get("/game/<joincode>")
@@ -69,7 +73,9 @@ def register_routes(app: Flask):
                 previous_submission=get_previous_submission(joincode, participant),
                 recent_submission=get_recent_submission(joincode, participant),
                 user_id=session["user_id"],
-                is_owner=game['owner_id'] == session["user_id"]) # type: ignore
+                is_owner=game['owner_id'] == session["user_id"],
+                max_prompt_length=MAX_PROMPT_LENGTH,
+                gamemodes=gamemode.GAMEMODES)
         
     @app.post("/submit-prompt/<joincode>")
     @helpers.logged_in
@@ -82,6 +88,10 @@ def register_routes(app: Flask):
         
         if len(request.form["prompt"]) == 0:
             flash("Your prompt can't be empty.")
+            return redirect("/game/" + joincode)
+        
+        if len(request.form["prompt"]) > MAX_PROMPT_LENGTH:
+            flash(f"Your prompt is too long! Please limit yourself to {MAX_PROMPT_LENGTH} characters.")
             return redirect("/game/" + joincode)
         
         if participant["has_submitted"] > 0:
@@ -147,9 +157,13 @@ def register_routes(app: Flask):
         allowed, ext = allowed_photo_file(photo.filename)
 
         if photo and allowed:
-            new_filename = f"photo_{joincode}_{participant['user_id']}_{game['current_round']}.{ext}"
+            random_id = "".join(
+                random.choice(string.ascii_uppercase)
+                for i in range(PHOTO_FILENAME_RANDOM_LENGTH))
+            
+            new_filename = f"photo_{joincode}_{participant['user_id']}_{game['current_round']}_{random_id}.jpg"
             path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
-            compress_image_to_size(photo, path, target_size_kb=MAX_IMAGE_KB)
+            compress_and_save(photo, path, target_size_kb=MAX_IMAGE_KB)
         else:
             flash("This file format is not supported. Please use either PNG, JPEG, BMP, or GIF!")
             return redirect("/game/" + joincode)
@@ -183,6 +197,40 @@ def register_routes(app: Flask):
 
         return redirect("/game/" + joincode)
     
+    @app.get("/unsubmit/<joincode>")
+    @helpers.logged_in
+    @helpers.with_game("game")
+    @helpers.with_participant("participant")
+    def get_unsubmit(joincode, participant, game):
+        if not participant["has_submitted"]:
+            return redirect("/game/" + joincode)
+        
+        old_submission = get_recent_submission(joincode, participant)
+        if old_submission == None:
+            return redirect("/game/" + joincode)
+
+        db.query(
+        """
+        delete from submissions
+        where id = ?
+        """, [old_submission["id"]], commit=True) # type: ignore
+
+        db.query(
+        """
+        update participants
+        set has_submitted = 0
+        where user_id = ?
+        """, [session["user_id"]], commit=True)
+
+        photo_path = old_submission["photo_path"] # type: ignore
+        if photo_path is not None:
+            real_path = os.path.join(app.config["UPLOAD_FOLDER"], photo_path)
+            os.remove(real_path)
+
+        flash("You've successfully undone your submission.")
+
+        return redirect("/game/" + joincode)
+
     @app.get("/photo/<path>")
     def get_photo(path):
         return send_from_directory(app.config["UPLOAD_FOLDER"], path)
@@ -382,7 +430,7 @@ def user_display_name(user_id):
 
     return name["display_name"] # type: ignore
 
-def compress_image_to_size(input_path, output_path, target_size_kb=96):
+def compress_and_save(input_path, output_path, target_size_kb=96):
     target_size_bytes = target_size_kb * 1024
     quality = 95  # Starting quality for compression
 

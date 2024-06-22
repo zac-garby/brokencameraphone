@@ -4,7 +4,7 @@ var state = undefined
 function onLoad() {
     updatePlayerList()
 
-    if (setExamplePrompt) {
+    if (window.hasOwnProperty("setExamplePrompt")) {
         setExamplePrompt()
     }
 }

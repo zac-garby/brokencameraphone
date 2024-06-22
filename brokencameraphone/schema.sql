@@ -6,6 +6,8 @@ CREATE TABLE users (
     password CHAR(60) NOT NULL,
     has_confirmed_email INTEGER DEFAULT 0 NOT NULL,
     email_confirmation_code TEXT UNIQUE,
+    reset_password_code TEXT,
+    last_email_timestamp INTEGER,
     email_expire_time INTEGER DEFAULT NULL,
 
     -- Used when changing your email address
@@ -28,6 +30,7 @@ CREATE TABLE games (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     join_code TEXT COLLATE NOCASE,
     owner_id INTEGER NOT NULL,
+    gamemode INTEGER DEFAULT 0 NOT NULL,
 
     current_round INTEGER NOT NULL,
     max_rounds INTEGER NOT NULL,
@@ -43,6 +46,11 @@ CREATE TABLE games (
 
     -- Can provide discord webhook endpoint to enable discord notifications for that game
     discord_webhook TEXT,
+
+    opt_vanilla_skip_initial INTEGER,
+    opt_vanilla_final_prompts INTEGER,
+    opt_photos_initial_prompts INTEGER,
+    opt_animation_onion_skin INTEGER,
 
     FOREIGN KEY (owner_id) REFERENCES users (id),
     FOREIGN KEY (current_showing_user) REFERENCES users (id)

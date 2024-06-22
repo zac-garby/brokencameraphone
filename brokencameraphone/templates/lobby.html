@@ -1,5 +1,10 @@
 {% extends "lobby-base.html" %}
 
+{% block head %}
+<script src="/static/lobby.js"></script>
+<script src="/static/game-setup.js"></script>
+{% endblock %}
+
 {% block lobby_content %}
 <p>
     Currently waiting for players to join. Invite your friends using the code: <span class="code">{{ game.join_code }}</span>.
@@ -10,14 +15,52 @@
 {% if is_owner %}
 <li>
     <form action="/start-game/{{ game['join_code'] }}" method="post">
+        <h2>👑 Game setup</h2>
         <div class="row">
-            <label for="max_rounds">Number of rounds:</label>
+            <label for="max_rounds">Number of rounds</label>
             <input type="number" name="max_rounds" id="max_rounds" value="4" min="1">
         </div>
         <p class="inset">
             Each round consists of one prompt and one photo. The game will always end on a photo round.
         </p>
-        <input type="submit" value="👑 Start Game">
+        <div>
+            <label>Gamemode</label>
+            <p class="inset">
+                Go for a standard <label for="gamemode-0">Vanilla</label> Whispering
+                Cameraphone game, or try out one of the many other gamemodes!
+            </p>
+            <div class="radio-grid">
+                {% for id, gm in gamemodes.items() %}
+                <label for="gamemode-{{ id }}">
+                    <input
+                        type="radio"
+                        name="gamemode"
+                        value="gamemode-{{ id }}" id="gamemode-{{ id }}"
+                        data-description="{{ gm['description'] }}"
+                        required
+                        {% if id == 0 %}checked{% endif %}>
+                    <span>{{ gm["name"] }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <p class="inset" id="gamemode-description">
+                Vanilla is your standard Whispering Cameraphone game. One chain per player,
+                each starting with a prompt and alternating photos and prompts.
+            </p>
+            {% for id, gm in gamemodes.items() %}
+            <div class="gamemode-options hidden" id="options-gamemode-{{ id }}">
+                {% for opt in gm["options"] %}
+                    {% if opt["type"] == "bool" %}
+                    <div class="row left">
+                        <input type="checkbox" name="option-{{ id }}-{{ opt['name'] }}" id="option-{{ id }}-{{ opt['name'] }}">
+                        <label for="option-{{ id }}-{{ opt['name'] }}">{{ opt['text'] }}</label>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        <input type="submit" class="button" value="Start Game">
     </form>
 </li>
 {% else %}
