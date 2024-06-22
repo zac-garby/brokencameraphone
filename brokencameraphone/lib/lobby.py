@@ -1,7 +1,9 @@
 import brokencameraphone.lib.db as db
 import brokencameraphone.lib.helpers as helpers
+import brokencameraphone.lib.gamemode as gamemode
 
 import random
+import re
 
 from flask import Flask, session, request, flash
 from flask.helpers import url_for
@@ -42,19 +44,34 @@ def register_routes(app: Flask):
     @helpers.lobby_owner(otherwise="index")
     def start_game_get(joincode, participant):
         if participant is None:
-            flash("You attempted to start a game which you're not in!")
+            flash("You attempted to start a game which you're not in!", category="error")
             return redirect("/game/" + joincode)
         
+        # set max rounds option
         try:
             max_rounds = int(request.form["max_rounds"])
         except Exception:
-            flash("Number of rounds wasn't specified.")
+            flash("Number of rounds wasn't specified.", category="error")
             return redirect("/game/" + joincode)
         
         if max_rounds < 1:
-            flash("You need at least one round!")
+            flash("You need at least one round!", category="error")
+            return redirect("/game/" + joincode)
+
+        # get selected gamemode
+        form = request.form
+
+        gamemode_str = re.match(
+            "gamemode-(\\d+)",
+            form.get("gamemode", default="gamemode-0"))
+        
+        if gamemode_str == None or (gamemode_id := int(gamemode_str[1])) not in gamemode.GAMEMODES:
+            flash(f"Invalid gamemode ID provided: {gamemode_id}", category="error")
             return redirect("/game/" + joincode)
         
+        the_gamemode = gamemode.GAMEMODES[gamemode_id]
+        
+        # check that there are enough participants in the lobby to begin
         participants = db.query(
             """
             select * from participants
@@ -63,12 +80,32 @@ def register_routes(app: Flask):
             """, [joincode])
         
         if participants == None or len(participants) <= 1:
-            flash("You need at least two players to start a game.")
+            flash("You need at least two players to start a game.", category="error")
             return redirect("/game/" + joincode)
+        
+        # set the gamemode's options from the request form
+        for opt in the_gamemode["options"]:
+            opt_val = form.get(f"option-{gamemode_id}-{opt['name']}", default="off") == "on"
 
-        db.query("update games set state = 1, max_rounds = ?, current_showing_user = ? where join_code = ?",
-                    [max_rounds, session["user_id"], joincode],
-                    commit=True)
+            db.query(
+                f"""
+                update games
+                set {opt['db_column']} = ?
+                where join_code = ?""",
+                [opt_val, joincode], commit=True)
+
+        # set the state, max rounds, gamemode, etc.
+        db.query(
+            """
+            update games
+            set state = 1,
+            max_rounds = ?,
+            current_showing_user = ?,
+            gamemode = ?
+            where join_code = ?""",
+            [max_rounds, session["user_id"], gamemode_id, joincode], commit=True)
+        
+        flash("Let the games commence!")
 
         return redirect("/game/" + joincode)
 

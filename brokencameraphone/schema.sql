@@ -15,6 +15,7 @@ CREATE TABLE games (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     join_code TEXT COLLATE NOCASE,
     owner_id INTEGER NOT NULL,
+    gamemode INTEGER DEFAULT 0 NOT NULL,
 
     current_round INTEGER NOT NULL,
     max_rounds INTEGER NOT NULL,
@@ -27,6 +28,11 @@ CREATE TABLE games (
     -- 3: doing prompts from photos
     -- 4: game finished
     state INTEGER,
+
+    opt_vanilla_skip_initial INTEGER,
+    opt_vanilla_final_prompts INTEGER,
+    opt_photos_initial_prompts INTEGER,
+    opt_animation_onion_skin INTEGER,
 
     FOREIGN KEY (owner_id) REFERENCES users (id),
     FOREIGN KEY (current_showing_user) REFERENCES users (id)

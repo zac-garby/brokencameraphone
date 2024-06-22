@@ -2,6 +2,7 @@ import os
 import random
 import brokencameraphone.lib.db as db
 import brokencameraphone.lib.helpers as helpers
+import brokencameraphone.lib.gamemode as gamemode
 import zipfile
 import io
 import string
@@ -72,7 +73,8 @@ def register_routes(app: Flask):
                 recent_submission=get_recent_submission(joincode, participant),
                 user_id=session["user_id"],
                 is_owner=game['owner_id'] == session["user_id"],
-                max_prompt_length=MAX_PROMPT_LENGTH) # type: ignore
+                max_prompt_length=MAX_PROMPT_LENGTH,
+                gamemodes=gamemode.GAMEMODES)
         
     @app.post("/submit-prompt/<joincode>")
     @helpers.logged_in

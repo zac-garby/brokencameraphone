@@ -17,6 +17,10 @@ div.wrapper {
     margin-top: 100px;
 }
 
+*.hidden {
+    display: none !important;
+}
+
 nav {
     width: 100%;
     height: 75px;
@@ -133,6 +137,14 @@ form.button {
     justify-content: space-between;
 }
 
+form input[type=submit].button {
+    background-color: #CA5B66;
+    padding: 8px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+}
+
 input {
     font-size: 1rem;
 }
@@ -178,12 +190,28 @@ form p.inset {
     font-size: 0.7rem;
 }
 
+form * p.inset {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
 form div.row {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-content: center;
+    align-items: center;
     gap: 10px;
+}
+
+form div.row.left {
+    justify-content: left;
+}
+
+form div.gamemode-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 form label {
@@ -220,11 +248,54 @@ form textarea {
     font-size: 1rem;
 }
 
+form div.radio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+form div.radio-grid label {
+    display: flex;
+    background-color: #d78088;
+    border: 4px solid #d78088;
+    align-content: center;
+    justify-content: center;
+    padding: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+form div.radio-grid label:has(:checked) {
+    background-color: #CA5B66;
+    border-color: #ad3945;
+}
+
+form div.radio-grid input {
+    visibility: hidden;
+    position: absolute;
+}
+
+form div.radio-grid span {
+    color: #eae6e6;
+    text-align: center;
+}
+
+form div.radio-grid label:has(:checked) span {
+    color: white;
+}
+
+p#gamemode-description::before {
+    content: "🤨 ";
+}
+
 input[type=submit]:hover {
     text-decoration: underline;
 }
 
 h1, h2, h3 {
+    font-weight: 700;
     margin-top: 0;
 }
 
@@ -357,14 +428,10 @@ ul#submissions p {
 }
 
 ul#submissions p.meta {
-    color: transparent;
+    color: grey;
     font-size: 0.8em;
     font-family: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
     margin-bottom: 0;
-}
-
-ul#submissions li:hover p.meta {
-    color: grey;
 }
 
 button {

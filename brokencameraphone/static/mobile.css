@@ -92,6 +92,10 @@
         flex-direction: row-reverse;
         align-items: inherit;
     }
+
+    form div.radio-grid {
+        grid-template-columns: auto;
+    }
 }
 
 @media screen and (max-width: 280px) {
