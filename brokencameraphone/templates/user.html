@@ -4,44 +4,51 @@
 
 {% block content %}
 
-{% if own_profile == True %}
-<p>Welcome to your profile {{name}}! Here you can view and change your settings and preferences.</p>
+{% if own_profile %}
+<p>Welcome to your profile {{ name }}! Here you can view and change your settings and preferences.</p>
 
 <div class="split equal">
     <div class="forms wide">
         <form action="/user/update_details" method="post">
-            <h2>Change your details</h2>
+            <h2>Your details</h2>
+            <p class="inset">
+                Here, you can change your username and/or email address
+                associated with your account. Just fill in the box(es) you want
+                to update.
+            </p>
             <input type="text" name="new_username" id="new_username" placeholder="Your new display name" spellcheck="false">
             <input type="email" name="new_email" id="new_email" placeholder="Your new email">
             <input type="submit" value="Update">
         </form>
 
         <form action="/user/update_password" method="post">
-            <h2>Change your password</h2>
+            <h2>Your password</h2>
+            <p class="inset">
+                To change your password, you'll need to enter your current
+                password, and then (twice) what you would like to change it to.
+            </p>
             <input type="password" name="current_passwd" id="current_passwd" placeholder="Your current password" required>
-            <input type="password" name="passwd" id="passwd" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$" placeholder="Your new password" required>
-            <input type="password" name="passwd_check" id="passwd_check" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$" placeholder="Repeat new password" required>
+            <input type="password" name="passwd" id="passwd" placeholder="Your new password" required>
+            <input type="password" name="passwd_check" id="passwd_check" placeholder="Repeat new password" required>
 
-            <div id="message" class="hidden">
-                <p><b>Password must contain:</b></p>
-                <ul class="no bullet">
-                    <li id="letter" class="">A lowercase letter</li>
-                    <li id="capital" class="">A uppercase letter</li>
-                    <li id="number" class="">A number</li>
-                    <li id="symbol" class="">A symbol</li>
-                    <li id="length" class="">Minimum 6 character</li>
-                    <br />
-                    <li id="match" class="">Passwords must match</li>
-                </ul>
-            </div>
+            <ul id="message" class="hidden password-requirements">
+                <li id="length" class="">Password should be at least 6 characters.</li>
+                <li id="match" class="">Passwords must match.</li>
+            </ul>
 
-            <input type="submit" id="submit" value="Update" disabled>
+            <input type="submit" id="submit" value="Update">
         </form>
     </div> 
 
     <div class="forms wide">
         <form action="/user/update_webhook" method="post">
-            <h2>Change your webhooks</h2>
+            <h2>Webhooks</h2>
+            <p class="inset">
+                You can set up
+                <a href="https://discord.com/developers/docs/resources/webhook">Discord webhooks</a>
+                to notify you and your friends when a new round has begun in
+                your Whispering Cameraphone games.
+            </p>
             <select onchange="changeSelector()" name="webhook_selector" id="webhook_selector">
                 <option disabled selected> -- select an option -- </option>
                 <option value="add_new">Add new webhook</option>
@@ -49,21 +56,34 @@
                     <option value="{{ webhooks[i][0] }}">{{ webhooks[i][0] }}</option>
                 {% endfor %}
             </select>
+            <p class="inset">
+                The friendly name can be anything and is just to help you
+                identify it amongst the others.
+            </p>
             <input type="text" name="friendly_name" id="friendly_name" pattern="[a-zA-Z0-9\s]+" placeholder="Friendly name" required>
-            <input type="text" name="webhook_name" id="webhook_name" placeholder="Webhook endpoint URL" required>
-            <br>
-            <div class="row">
-                <input type="submit" name="submit" value="Submit">
-                <input class="right align" type="submit" name = "delete" value="Delete">
+            <p class="inset">
+                You'll need a webhook URL. In a server in which you have
+                the correct permissions, follow <a href="https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks">these instructions</a>
+                to create a webhook, and paste the URL below.
+            </p>
+            <input type="text" name="webhook_name" id="webhook_name" placeholder="Webhook URL" required>
+            <div class="row split">
+                <input type="submit" name="submit" value="Create / update">
+                <input class="right-align" type="submit" name = "delete" value="Delete selected">
             </div>
         </form>
 
         <form action="/user/update_preferences" method="post">
             <h2>Your preferences</h2>
-            <div class="row">
+            <div class="row left">
                 <input class="top" type="checkbox" name="public_stats" id="public_stats" value="yes" {% if show_stats == True %} checked {% endif %}>
-                <label class="regular">Display my stats on my profile to others</label><br>
+                <label for="public_stats">Make my stats public</label>
             </div>
+            <p class="inset">
+                If enabled, others will be able to view your stats (e.g.
+                number of photos submitted, games played, etc) by visiting
+                this URL.
+            </p>
             <input type="submit" value="Save">
         </form>
     </div> 

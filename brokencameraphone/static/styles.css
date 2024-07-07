@@ -190,7 +190,7 @@ form > * {
     margin: 0;
 }
 
-form p.inset {
+p.inset {
     font-size: 0.7rem;
 }
 
@@ -210,6 +210,10 @@ form div.row {
 
 form div.row.left {
     justify-content: left;
+}
+
+form div.row.split {
+    justify-content: space-between;
 }
 
 form div.gamemode-options {
@@ -500,10 +504,6 @@ footer, footer * {
     color: rgb(198, 163, 163);
 }
 
-.right.align {
-    text-align: right;
-}
-
 .regular {
     font-weight: normal;
 }
@@ -528,8 +528,13 @@ select textarea {
     display: none;
 }
 
-ul.no.bullet {
-    list-style-type: none;
-    padding: 0;
+ul.password-requirements {
+    font-size: 0.7rem;
+    list-style: none;
     margin: 0;
+    padding: 0;
+}
+
+input.right-align {
+    text-align: right;
 }

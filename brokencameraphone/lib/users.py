@@ -2,7 +2,11 @@ import brokencameraphone.lib.db as db
 import brokencameraphone.lib.mailing as mailing
 import brokencameraphone.lib.helpers as helpers
 
-import bcrypt, uuid, re, time
+import bcrypt
+import uuid
+import re
+import time
+import string
 
 from flask import Flask, session, request, flash, current_app, abort
 from flask.helpers import url_for
@@ -10,8 +14,9 @@ from flask.templating import render_template
 from werkzeug.utils import redirect
 
 CONFIRMATION_SUBJECT = "Welcome to Whispering Cameraphone!"
-
+DISPLAY_NAME_ALLOWED_CHARS = string.ascii_letters + string.digits + " _-!+=?<>():;#"
 PASSWORD_RESET_SUBJECT = "Reset your password"
+PASSWORD_MIN_LENGTH = 6
 
 def register_routes(app: Flask):
     @app.get("/login")
@@ -30,20 +35,23 @@ def register_routes(app: Flask):
         if email == "":
             return render_template("login.html", error="Enter your email")
 
-        user = db.query("select * from users where email = ?",
-                        [email], one=True)
+        user = db.query(
+            """
+            select * from users
+            where email = ?
+            """, [email], one=True)
 
         if user is None:
             return render_template("login.html", error="No user exists with that email address.")
 
-        if validate_password(password, hashed_passwd = user["password"]):
+        if validate_password(password, hashed_passwd = user["password"]): # type: ignore
             session["email"] = email
             session["user_id"] = int(user["id"]) # type: ignore
-            session["name"] = user["display_name"]
+            session["name"] = user["display_name"] # type: ignore
             flash("You were successfully logged in.")
             session.permanent = True
         else:
-            return render_template("login.html", error="That's the wrong password!", forgo_passwd = True)
+            return render_template("login.html", error="That's the wrong password!")
         
         return redirect(url_for("index"))
 
@@ -54,34 +62,48 @@ def register_routes(app: Flask):
         password_check = request.form["passwd_check"]
         name = request.form["name"]
 
-        user = db.query("select * from users where email = ?",
-                        [email], one=True)
+        user = db.query(
+            """
+            select * from users
+            where email = ?
+            """, [email], one=True)
 
         if user is not None:
-            return render_template("login.html", error="A user already exists with that email! Is it you..?")
+            flash("A user already exists with that email! Is it you...?", category="error")
+            return redirect(url_for("login_get"))
 
-        if (err_name := check_name(name=name)) is not False:
-            return render_template("login.html", error=err_name, email=email)
+        if (err_name := check_name(name=name)) is not None:
+            flash(err_name, category="error")
+            return redirect(url_for("login_get"))
         
         if password != password_check:
-            return render_template("login.html", error="Passwords do not match.")
+            flash("Your passwords don't match - one of them was probably misspelled.", category="error")
+            return redirect(url_for("login_get"))
 
-        if (err_pass := check_password(password=password)) is not False:
-            return render_template("login.html", error=err_pass, email=email, uname = name)
+        if (err_pass := check_password(password=password)) is not None:
+            flash(err_pass, category="error")
+            return redirect(url_for("login_get"))
     
         hashed = hash_password(password)
         confirmation_code = str(uuid.uuid4())
 
-        db.query("""
-        insert into users (email, password, display_name, email_confirmation_code)
-        values (?, ?, ?, ?)
-        """,
-        [email, str(hashed, encoding="utf-8"), name, confirmation_code],
-        commit=True)
+        current_app.logger.info(f"created user {email}")
+
+        db.query(
+            """
+            insert into users (email, password, display_name, email_confirmation_code)
+            values (?, ?, ?, ?)
+            """,
+            [email, str(hashed, encoding="utf-8"), name, confirmation_code], commit=True)
         
         session["email"] = email
 
-        user = db.query("select * from users where email = ?", [email], one=True)
+        user = db.query(
+            """
+            select * from users
+            where email = ?
+            """, [email], one=True)
+        
         session["user_id"] = int(user["id"]) # type: ignore
         session["name"] = name
 
@@ -171,15 +193,29 @@ def register_routes(app: Flask):
 
     @app.get("/user/<name>")
     def profile_get(name):
-        get_user = db.query("select * from users where display_name = ?", (name,), one=True)
-        if get_user is not None: # The user exists in the database
-            # Should this user show their stats?
-            show_stats = True if get_user["show_stats"] == 1 else False
+        the_user = db.query(
+            """
+            select * from users
+            where display_name = ?
+            """, [name], one=True)
+        
+        if the_user is not None:
+            # The user exists in the database
+
+            # Does this user want to show their stats?
+            show_stats = the_user["show_stats"] == 1 # type: ignore
+
             if "user_id" in session: # Someone logged in?
-                get_webhooks = [(x["display_name"], x["webhook"], x["display_name"].replace(" ", "")) for x in db.query("select display_name, webhook from webhooks where user_id = ?", (session["user_id"],))]
+                webhooks = db.query(
+                    """
+                    select display_name, webhook from webhooks
+                    where user_id = ?
+                    """, [session["user_id"]])
+                                    
+                get_webhooks = [(x["display_name"], x["webhook"], x["display_name"].replace(" ", "")) for x in webhooks] # type: ignore
 
                 # The user matches the profile?
-                own_profile = True if get_user["id"] == session["user_id"] else False
+                own_profile = the_user["id"] == session["user_id"] # type: ignore
 
                 return render_template("user.html", 
                                         user_id = session["user_id"],
@@ -197,28 +233,34 @@ def register_routes(app: Flask):
 
     @app.post("/user/update_preferences")
     def preferences_post():
-        if request.form.get("public_stats") == "yes":
-            pref = 1
-        else:
-            pref = 0
+        pref = request.form.get("public_stats") == "yes"
 
-        db.query("update users set show_stats = ? where id = ?", (pref, session["user_id"]), commit = True)
+        db.query(
+            """
+            update users set show_stats = ?
+            where id = ?
+            """, [pref, session["user_id"]], commit = True)
 
         return redirect("/user")
 
     @app.post("/user/update_details")
     def update_details_post():
-        if (new_name := request.form.get("new_username")) != "":
+        if (new_name := request.form.get("new_username", default="")) != "":
             if new_name == session["name"]:
                 flash("Your new display name is the same as your current one.")
                 return(redirect("/user"))
             
-            if (error := check_name(new_name)) is not False:
+            if (error := check_name(new_name)) is not None:
                 flash(error)
                 return redirect("/user")
 
-            db.query("update users set display_name = ? where id = ?", (new_name, session["user_id"]), commit = True)
-            del(session["name"])
+            db.query(
+                """
+                update users set display_name = ?
+                where id = ?
+                """, [new_name, session["user_id"]], commit = True)
+            
+            del session["name"]
             session["name"] = new_name
 
         # Need to understand if the new email address is legit and verify it. But cannot change current one to it just yet.
@@ -232,10 +274,10 @@ def register_routes(app: Flask):
     @app.post("/user/update_password")
     def update_password_post():
         fail = False
-        if (curr_passwd := request.form.get("current_passwd")) == "":
+        if (curr_passwd := request.form.get("current_passwd", default="")) == "":
             flash("You must enter you current password.")
             fail = True
-        elif (new_passwd := request.form.get("passwd")) == "":
+        elif (new_passwd := request.form.get("passwd", default="")) == "":
             flash("You must enter a new password.")
             fail = True
         elif (new_passwd_check := request.form.get("passwd_check")) == "":
@@ -249,10 +291,15 @@ def register_routes(app: Flask):
             fail = True
 
         if not fail:
-            if (pass_error := check_password(new_passwd)) is False: # Does the password meet the requirements?
+            if (pass_error := check_password(new_passwd)) is None: # Does the password meet the requirements?
                 if validate_password(curr_passwd, user_id = session["user_id"]): # Is the current password correct?
                     hashed_passwd = hash_password(new_passwd)
-                    db.query("update users set password = ? where id = ?", (str(hashed_passwd, encoding="utf-8 "), session["user_id"]), commit=True)
+                    db.query(
+                        """
+                        update users set password = ?
+                        where id = ?
+                        """, [str(hashed_passwd, encoding="utf-8 "), session["user_id"]], commit=True)
+                    
                     flash("Your password has been updated. Add send email notif.")
                     #### SEND EMAIL ####
                 else:
@@ -270,31 +317,49 @@ def register_routes(app: Flask):
             flash("Please select an option")
             return redirect("/user")
 
-        if request.form.get("submit") is not None: # Submit clicked, not delete
-            friendly = request.form.get("friendly_name")
-            webhook = request.form.get("webhook_name")
+        if request.form.get("submit") is not None:
+            # Submit clicked, not delete
+            friendly = request.form.get("friendly_name", default="")
+            webhook = request.form.get("webhook_name", default="")
+
             if option == "add_new":                
-                if (err := check_webhook_submission(webhook, friendly)) is False: # Add new webhook to db                    
-                    db.query("insert into webhooks (user_id, webhook, display_name) values (?, ?, ?)",
-                             (session["user_id"], webhook, friendly), commit = True)
-                    flash(f"The webhook '{friendly}' added to your profile.")
+                # Add new webhook to db
+                if (err := check_webhook_submission(webhook, friendly)) is False:
+                    db.query(
+                        """
+                        insert into webhooks (user_id, webhook, display_name)
+                        values (?, ?, ?)
+                        """, [session["user_id"], webhook, friendly], commit = True)
+                    
+                    flash(f"The webhook '{friendly}' was added to your profile.")
                 else:
                     flash(err)
-
-            else: # Update current selected one
-                if (err := check_webhook_submission(webhook, friendly, update = True)) is False: # Add new webhook to db     
-                    test = db.query("update webhooks set webhook = ?, display_name = ? where user_id = ? and display_name = ?",
-                            (webhook, friendly, session["user_id"], option), commit = True)
+            else:
+                # Update currently selected one
+                # Add new webhook to db
+                if (err := check_webhook_submission(webhook, friendly, update = True)) is False:
+                    test = db.query(
+                        """
+                        update webhooks
+                        set webhook = ?, display_name = ?
+                        where user_id = ? and display_name = ?
+                        """,
+                        [webhook, friendly, session["user_id"], option], commit = True)
                     flash(f"Webhook '{friendly}' has been updated.")
                 else:
                     flash(err)
-
-        elif request.form.get("delete") is not None: # Delete clicked
-            db.query("delete from webhooks where user_id = ? and display_name = ?", (session["user_id"], option), commit = True)
+        elif request.form.get("delete") is not None:
+            # Delete clicked
+            db.query(
+                """
+                delete from webhooks
+                where user_id = ? and display_name = ?
+                """, [session["user_id"], option], commit = True)
+            
             flash(f"Webhook '{option}' has been deleted.")
-
-        else: # Something odd happened..?
-            flash("Something went wrong with that reuqest. Please try again later.")
+        else:
+            # Something odd happened..?
+            flash("Something went wrong with that request. Please try again later.")
 
         return redirect("/user")
 
@@ -363,46 +428,33 @@ def register_routes(app: Flask):
         return redirect(url_for("index"))
 
 # Useful functions
-def check_password(password: str) -> str:
+def check_password(password: str) -> str | None:
     """
     Checks password for certain conditions. This does not check hashes!
-    Will return error as a string if there is one. Else returns False.
+    Will return error as a string if there is one. Else returns None.
     """
 
-    min_length = 6
-    pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$"
-                                            # Must contain at least one symbol
-                                            # only have alphanumeric characters
-                                            # one number
-                                            # one capital
+    if len(password) < PASSWORD_MIN_LENGTH:
+        return f"Your password must be at least {PASSWORD_MIN_LENGTH} characters long"
 
-    error = False
-    if len(password) < min_length:
-        error = f"Your password must be at least {min_length} characters long"
-    elif re.fullmatch(pattern, password) is None:
-        error = f"Password must contain at least 1 symbol, 1 number, 1 upper and lowercase letter."
+    return None
 
-    return error
-
-def check_name(name: str) -> str:
+def check_name(name: str) -> str | None:
     """
-    Checks the display name. Will return error as a string if there is one. Else returns False.
+    Checks the display name. Will return error as a string if there is one. Else returns None.
     """
 
-    error = False # There is no error yet
-
-    pattern = r'[^a-zA-Z0-9._-]' # checks for NOT alphanumeric, - _ and . This can be changed easily
-    if re.findall(pattern, name) != []:
-        error = "Your display name can only contain _.- a-z and 0-9."
+    if not all(ch in DISPLAY_NAME_ALLOWED_CHARS for ch in name):
+        return f"Your display name can only contain characters in '{DISPLAY_NAME_ALLOWED_CHARS}'."
+    
     if len(name) < 3:
-        error = "Your display name must be at least 3 characters long."
+        return "Your display name must be at least three characters long."
 
-    if db.query("select * from users where display_name = ?", args=(name,), one=True) is not None:
-        error = "This display name is already in use."
+    return None
 
-    return error
-
-def validate_password(passwd: str, hashed_passwd: str = None, user_id: int = None) -> bool:
+def validate_password(passwd: str,
+                      hashed_passwd: str | None = None,
+                      user_id: int | None = None) -> bool:
     """
     Checks the users password against the database and returns True if valid, and False if not.
 
@@ -410,14 +462,18 @@ def validate_password(passwd: str, hashed_passwd: str = None, user_id: int = Non
     """
 
     if hashed_passwd is None: # Look up the hashed password from the database
-        hashed_passwd = db.query("select password from users where id = ?", (user_id,), one = True)["password"]
+        hashed_passwd = db.query(
+            """
+            select password from users
+            where id = ?
+            """, [user_id], one = True)["password"] # type: ignore
 
     return bcrypt.checkpw(
         passwd.encode("utf-8"),
         hashed_passwd.encode("utf-8"), # type: ignore
     )
 
-def hash_password(passwd: str) -> str:
+def hash_password(passwd: str) -> bytes:
     """
     Hashes the users password and returns the salted+hashed string.
     """
@@ -433,23 +489,30 @@ def check_webhook_submission(webhook: str, friendly: str, update: bool = False):
 
     pattern = r'[^a-zA-Z0-9\s]'
     
-    check_friendly = db.query("select * from webhooks where user_id = ? and display_name = ?", 
-            (session["user_id"], friendly), one = True)
-    check_webhook = db.query("select * from webhooks where user_id = ? and webhook = ?", 
-            (session["user_id"], webhook), one = True)
+    check_friendly = db.query(
+        """
+        select * from webhooks
+        where user_id = ? and display_name = ?
+        """,  [session["user_id"], friendly], one = True)
+    
+    check_webhook = db.query(
+        """
+        select * from webhooks
+        where user_id = ? and webhook = ?
+        """, [session["user_id"], webhook], one = True)
     
     if friendly == "":
-        return("You must enter a friendly name.")
+        return "You must enter a friendly name."
     elif webhook == "":
-        return("You must provide webhook endpoint URL.")
+        return "You must provide webhook endpoint URL."
     elif check_friendly is not None and update is False:
-        return(f"You already have a webhook called {friendly}.")
+        return f"You already have a webhook called {friendly}."
     elif check_webhook is not None and update is False:
-        return(f"You already have a webhook with this endpoint called '{check_webhook['display_name']}'.")
+        return f"You already have a webhook with this endpoint called '{check_webhook['display_name']}'." # type: ignore
     elif re.findall(pattern, friendly) != []:
-        return("Your friendly name can only contain a-z, 0-9, and spaces.")
+        return "Your friendly name can only contain a-z, 0-9, and spaces."
     elif len(friendly) > 20:
-        return("Your friendly name can be up to 20 characters long.")
+        return "Your friendly name can be up to 20 characters long."
     
     return False
 

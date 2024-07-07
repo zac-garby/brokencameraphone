@@ -7,7 +7,8 @@
     Welcome to Whispering Cameraphone! Log in below if you already have an account, or register a new account.
 </p>
 <p>
-    <b>What is this thing?</b> Good question! Think Chinese whispers, but with photos rather than whispers. Take a look at the <a href="/about">about page</a> for more info.
+    <b>What is this thing?</b> Good question! Think 
+    <a href="https://en.wikipedia.org/wiki/Chinese_whispers">Chinese whispers</a>, but with photos rather than whispers. Take a look at the <a href="/about">about page</a> for more info.
 </p>
 <div class="split equal">
     <div>
@@ -17,34 +18,23 @@
             <input type="password" name="password" id="password" placeholder="Your password" required>
             <div class="row">
                 <input type="submit" name="submit" value="Go!">
-                {% if forgo_passwd %}
-                    <a class="right align" href="#">
-                {% endif %}
             </div>
         </form>
     </div>
     <div>
         <form action="/register" method="post">
             <h2>Register</h2>
-            <input type="email" name="email" id="email" placeholder="Your email address" {% if email %} value = {{ email }} {% endif %} required>
-            <input type="text" name="name" id="name" placeholder="Your display name" spellcheck="false" {% if uname %} value = {{ uname }} {% endif %} required>
-            <input type="password" name="passwd" id="passwd" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$" placeholder="Your password" required>
-            <input type="password" name="passwd_check" id="passwd_check" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[A-Za-z\d\W_]{6,}$" placeholder="Repeat password" required>
+            <input type="email" name="email" id="email" placeholder="Your email address" required>
+            <input type="text" name="name" id="name" placeholder="Your display name" spellcheck="false" required>
+            <input type="password" name="passwd" id="passwd" placeholder="Your password" required>
+            <input type="password" name="passwd_check" id="passwd_check" placeholder="Repeat password" required>
 
-            <div id="message" class="hidden">
-                <p><b>Password must contain:</b></p>
-                <ul class="no bullet">
-                    <li id="letter" class="">A lowercase letter</li>
-                    <li id="capital" class="">A uppercase letter</li>
-                    <li id="number" class="">A number</li>
-                    <li id="symbol" class="">A symbol</li>
-                    <li id="length" class="">Minimum 6 character</li>
-                    <br />
-                    <li id="match" class="">Passwords must match</li>
-                </ul>
-            </div>
+            <ul id="message" class="hidden password-requirements">
+                <li id="length" class="">Password should be at least 6 characters.</li>
+                <li id="match" class="">Passwords must match.</li>
+            </ul>
 
-            <input type="submit" id="submit" value="Register" disabled>           
+            <input type="submit" id="submit" value="Register">           
         </form>
     </div>
 </div>

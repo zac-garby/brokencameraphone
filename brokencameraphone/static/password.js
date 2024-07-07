@@ -1,8 +1,4 @@
-// List elements to display whats missing
-var letter = document.getElementById("letter");
-var capital = document.getElementById("capital");
-var number = document.getElementById("number");
-var symbol = document.getElementById("symbol")
+// elements to display whats missing
 var length = document.getElementById("length");
 var match = document.getElementById("match");
 
@@ -12,99 +8,31 @@ var submitButton = document.getElementById("submit");
 var password = document.getElementById("passwd");
 var passwordCheck = document.getElementById("passwd_check");
 
-// All count must be true for the password to be correct
-var count = [false, false, false, false, false, false];
+// All must be true for the password to be correct
+var passwordLongEnough = false
+var passwordsMatch = false
 
-// Show the message box when user clicks password
-password.onfocus = function() {
-    if(count.every(Boolean) === false){
-        messageBox.classList.remove("hidden");
-    }
+function onPasswordChange() {
+    messageBox.classList.toggle("hidden", passwordLongEnough && passwordsMatch)
 }
 
-passwordCheck.onfocus = function() {
-    if(count.every(Boolean) === false){
-        messageBox.classList.remove("hidden");
-    }
-}
+password.onfocus = onPasswordChange
+passwordCheck.onfocus = onPasswordChange
 
 // When the user starts to type something inside the password field
-password.oninput = function() {
-    // Lowercase letters
-    var lowerCaseLetters = /[a-z]/g;
-    if(password.value.match(lowerCaseLetters)) {
-        letter.classList.add("hidden");
-        count[0] = true;
-    } else {
-        letter.classList.remove("hidden");
-        count[0] = false;
-    }
+password.oninput = function () {
+    passwordLongEnough = password.value.length >= 6
+    length.classList.toggle("hidden", passwordLongEnough)
 
-    // Capital letters
-    var upperCaseLetters = /[A-Z]/g;
-    if(password.value.match(upperCaseLetters)) {
-        capital.classList.add("hidden");
-        count[1] = true;
-    } else {
-        capital.classList.remove("hidden");
-        count[1] = false;
-    }
+    passwordsMatch = password.value == passwordCheck.value
+    match.classList.toggle("hidden", passwordsMatch)
 
-    // Numbers
-    var numbers = /[\d]/g;
-    if(password.value.match(numbers)) {
-        number.classList.add("hidden");
-        count[2] = true;
-    } else {
-        number.classList.remove("hidden");
-        count[2] = false;
-    }
-
-    // Symbols
-    var symbols = /[\W_]/g;
-    if(password.value.match(symbols)) {
-        symbol.classList.add("hidden");
-        count[3] = true;
-    } else {
-        symbol.classList.remove("hidden");
-        count[3] = false;
-    }
-
-    // Length
-    if(password.value.length >= 6) {
-        length.classList.add("hidden");
-        count[4] = true;
-    } else {
-        length.classList.remove("hidden");
-        count[4] = false;
-    }
-
-    // All conditions met?
-    if(count.every(Boolean)) {
-        messageBox.classList.add("hidden");
-        submitButton.disabled = false;
-    } else {
-        messageBox.classList.remove("hidden");
-        submitButton.disabled = true;
-    }
+    onPasswordChange()
 }
 
-passwordCheck.oninput = function() {
-    // Passwords match?
-    if(password.value == passwordCheck.value){
-        match.classList.add("hidden");
-        count[5] = true;
-    } else {
-        match.classList.remove("hidden");
-        count[5] = false;
-    }
+passwordCheck.oninput = function () {
+    passwordsMatch = password.value == passwordCheck.value
+    match.classList.toggle("hidden", passwordsMatch)
 
-    // All conditions met?
-    if(count.every(Boolean)) {
-        messageBox.classList.add("hidden");
-        submitButton.disabled = false;
-    } else {
-        messageBox.classList.remove("hidden");
-        submitButton.disabled = true;
-    }
+    onPasswordChange()
 }
