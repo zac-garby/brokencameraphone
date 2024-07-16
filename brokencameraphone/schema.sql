@@ -2,15 +2,35 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
-    display_name TEXT NOT NULL,
-    password CHAR(60) NOT NULL
+    display_name TEXT COLLATE NOCASE NOT NULL,
+    password CHAR(60) NOT NULL,
+    has_confirmed_email INTEGER DEFAULT 0 NOT NULL,
+    email_confirmation_code TEXT UNIQUE,
+    reset_password_code TEXT,
+    last_email_timestamp INTEGER,
+    email_expire_time INTEGER DEFAULT NULL,
+
+    -- Used when changing your email address
+    new_email_temp TEXT UNIQUE DEFAULT NULL,
+    new_email_code TEXT DEFAULT NULL,
+
+    -- UNIX time stamp for account deletion datetime
+    delete_after INTEGER DEFAULT NULL,
+
+    photos_submitted INTEGER DEFAULT 0 NOT NULL,
+    games_played INTEGER DEFAULT 0 NOT NULL,
+
+    -- Does this user show their stats on their profile?
+    -- Defaults to yes
+    show_stats TINYINT DEFAULT 1 NOT NULL
 );
 
 DROP TABLE IF EXISTS games;
 CREATE TABLE games (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    join_code TEXT,
+    join_code TEXT COLLATE NOCASE,
     owner_id INTEGER NOT NULL,
+    gamemode INTEGER DEFAULT 0 NOT NULL,
 
     current_round INTEGER NOT NULL,
     max_rounds INTEGER NOT NULL,
@@ -23,6 +43,14 @@ CREATE TABLE games (
     -- 3: doing prompts from photos
     -- 4: game finished
     state INTEGER,
+
+    -- Can provide discord webhook endpoint to enable discord notifications for that game
+    discord_webhook TEXT,
+
+    opt_vanilla_skip_initial INTEGER,
+    opt_vanilla_final_prompts INTEGER,
+    opt_photos_initial_prompts INTEGER,
+    opt_animation_onion_skin INTEGER,
 
     FOREIGN KEY (owner_id) REFERENCES users (id),
     FOREIGN KEY (current_showing_user) REFERENCES users (id)
@@ -59,6 +87,9 @@ CREATE TABLE submissions (
     -- whether this submission has been revealed yet
     -- in the post-game gallery thing.
     revealed INTEGER DEFAULT 0 NOT NULL,
+
+    -- the time when this submission was made. UTC timestamp.
+    timestamp INTEGER NOT NULL,
 
     -- either photo_path or prompt is NULL, depending
     -- on whether this round was a photo or prompt round.
@@ -99,4 +130,18 @@ CREATE TABLE archived (
     FOREIGN KEY (game_id) REFERENCES games (id),
 
     PRIMARY KEY (user_id, game_id)
+);
+
+DROP TABLE IF EXISTS webhooks;
+CREATE TABLE webhooks (
+    user_id INTEGER NOT NULL,
+    webhook TEXT COLLATE NOCASE NOT NULL,
+
+    -- User friendly name for the webhook
+    display_name TEXT NOT NULL,
+
+    FOREIGN KEY (user_id) REFERENCES users (id)
+
+    -- One user cannot have the same webhook twice so this is the primary key
+    PRIMARY KEY (user_id, webhook)
 );

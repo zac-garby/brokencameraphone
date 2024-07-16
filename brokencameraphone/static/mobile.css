@@ -1,29 +1,106 @@
-@media screen and (max-width: 850px) {
-    div.wrapper {
-        width: 100%;
-        padding: 8px;
-        margin-top: 25px;
+@media screen and (max-width: 750px) {
+    body {
+        margin: 20px;
     }
 
-    img.logo {
+    div.wrapper {
         width: 100%;
-        max-width: 275px;
+        margin-top: 50px;
+    }
+
+    nav ul {
+        justify-content: center;
+        background-image: url("/static/shadow.svg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        padding: 15px 0;
+        min-height: 60px;
+    }
+
+    nav ul li {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    nav {
+        margin-top: 20px;
+        padding-left: 0;
+        margin-inline: -20px;
+        width: calc(100% + 40px);
+        background: none;
+    }
+
+    h1.logo {
+        margin-bottom: calc(2vw - 50px);
+        padding: 8px;
+    }
+
+    div.split {
+        gap: 20px;
+    }
+
+    form.button {
+        flex-direction: column;
+        align-items: end;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    nav ul {
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 8px;
+        height: auto;
+        min-height: auto;
+        padding: 8px 16px;
+    }
+
+    nav {
+        height: auto;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+
+    nav ul {
+        background: none;
+        background-color: rgb(246,232,232);
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    h1.logo {
+        padding: 0;
+        margin-bottom: -20px;
     }
 
     div.split {
         display: flex;
-        flex-direction: column-reverse;
-    }    
-}
-
-@media screen and (max-width: 550px) {
-    nav ul li {
-        display: list-item;
-        padding: 5px;
-        margin-bottom: 5px;
+        flex-direction: column;
     }
 
-    nav ul li:last-child {
-        margin-bottom: 0;
+    div.split.mobile-reverse {
+        flex-direction: column-reverse;
+    }
+
+    ul.flashes {
+        margin-top: 0;
+    }
+
+    form.button {
+        flex-direction: row-reverse;
+        align-items: inherit;
+    }
+
+    form div.radio-grid {
+        grid-template-columns: auto;
+    }
+}
+
+@media screen and (max-width: 280px) {
+    form.button {
+        flex-direction: column;
+        align-items: end;
     }
 }

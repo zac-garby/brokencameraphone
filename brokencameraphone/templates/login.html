@@ -4,29 +4,41 @@
 
 {% block content %}
 <p>
-    Welcome to Broken Cameraphone! Log in below if you already have an account, or register a new account.
+    Welcome to Whispering Cameraphone! Log in below if you already have an account, or register a new account.
 </p>
 <p>
-    <b>What is this thing?</b> Good question! Think Chinese whispers, but with photos rather than whispers. Take a look at the <a href="/about">about page</a> for more info.
+    <b>What is this thing?</b> Good question! Think 
+    <a href="https://en.wikipedia.org/wiki/Chinese_whispers">Chinese whispers</a>, but with photos rather than whispers. Take a look at the <a href="/about">about page</a> for more info.
 </p>
-<div class="split">
+<div class="split equal">
     <div>
         <form action="/login" method="post">
             <h2>Login</h2>
-            <input type="text" name="email" id="email" placeholder="Your email address">
-            <input type="password" name="password" id="password" placeholder="Your password">
-            <input type="submit" value="Go!">
+            <input type="email" name="email" id="email" placeholder="Your email address" required>
+            <input type="password" name="password" id="password" placeholder="Your password" required>
+            <div class="row">
+                <input type="submit" name="submit" value="Go!">
+            </div>
         </form>
     </div>
     <div>
         <form action="/register" method="post">
             <h2>Register</h2>
-            <input type="text" name="email" id="email" placeholder="Your email address">
-            <input type="text" name="name" id="name" placeholder="Your display name">
-            <input type="password" name="password" id="password" placeholder="Your new password">
-            <input type="submit" value="Register">
+            <input type="email" name="email" id="email" placeholder="Your email address" required>
+            <input type="text" name="name" id="name" placeholder="Your display name" spellcheck="false" required>
+            <input type="password" name="passwd" id="passwd" placeholder="Your password" required>
+            <input type="password" name="passwd_check" id="passwd_check" placeholder="Repeat password" required>
+
+            <ul id="message" class="hidden password-requirements">
+                <li id="length" class="">Password should be at least 6 characters.</li>
+                <li id="match" class="">Passwords must match.</li>
+            </ul>
+
+            <input type="submit" id="submit" value="Register">           
         </form>
     </div>
 </div>
+
+<script src="/static/password.js"></script>
 
 {% endblock %}

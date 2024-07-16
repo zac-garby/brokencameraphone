@@ -9,21 +9,27 @@
 {% block content %}
 <div class="split">
     <div>
+        <h2>
+            <span class="code">{{ game.join_code }}</span>
+            {% if game['current_round'] // 2 < game['max_rounds'] %}
+                <p class="round">Round {{ 1 + game['current_round'] // 2 }}/{{ game['max_rounds'] }}</p>
+            {% endif %}
+        </h2>
         {% block lobby_content %}{% endblock %}
         <ul class="lobby-controls">
             {% block lobby_controls %}{% endblock %}
+            <li class="form">
+                {% if game.is_archived %}
+                    <a href="/set-archived/{{ game['join_code'] }}/false">Unarchive this game</a>
+                {% else %}
+                    <a href="/set-archived/{{ game['join_code'] }}/true">Archive this game</a>
+                {% endif %}
+            </li>
         </ul>
     </div>
     <div>
         <h2>Players</h2>
         <ul id="players"></ul>
-        <li class="form minor">
-            {% if game.is_archived %}
-                <a href="/set-archived/{{ game['join_code'] }}/false">Unarchive this game</a>
-            {% else %}
-            <a href="/set-archived/{{ game['join_code'] }}/true">Archive this game</a>
-            {% endif %}
-        </li>
     </div>
 </div>
 {% endblock %}

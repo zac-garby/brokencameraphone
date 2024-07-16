@@ -8,12 +8,17 @@
 {% endblock %}
 
 {% block lobby_content %}
-<h2>Game Over</h2>
 {% if is_owner %}
-    <p>
-        And that's it! Let's have a look at what you came up with.
-    </p>
-    <button id="advance" onclick="advance()">Show next...</button>
+    <div id="gallery-controls">
+        <p class="before-finish">
+            And that's it! Let's have a look at what you came up with.
+        </p>
+        <p class="after-finish">
+            That's the end for that prompt! Check out the others by clicking
+            somebody else's name in the player list.
+        </p>
+        <button id="advance" class="before-finish" onclick="advance()">👑 Show next...</button>
+    </div>
 {% else %}
     <p>
         And that's it! Let's have a look at what you came up with. Sit back and let the lobby's owner work the controls.
@@ -24,9 +29,17 @@
 {% if is_owner %}
 <p>
     As the game master, you're going to be in charge of the gallery controls.
+    Going through the images will show them to everyone simultaneously, so
+    gather everyone up in VC
 </p>
 <p>
-    Click the names above to cycle between prompts, and press "Show next..." to advance to the next submission.
+    Click the names in the player list to choose one to view, and press <span class="pretend-button">👑 Show next...</span> above to advance to the next submission.
 </p>
 {% endif %}
+{% endblock %}
+
+{% block lobby_controls %}
+<li class="form">
+    <a href="/api/gallery/download/{{ game['join_code'] }}">Download gallery <code>.zip</code></a>
+</li>
 {% endblock %}

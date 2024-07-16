@@ -6,10 +6,12 @@
 {% endblock %}
 
 {% block lobby_content %}
-<h2>Initial Prompts</h2>
 {% if participant.has_submitted == 1 %}
 <p>
-    Thanks for the prompt! Now just to wait for the others.
+    Thanks for the prompt! Now just to wait for the others. You said:
+</p>
+<p class="prompt">
+    "{{ recent_submission["prompt"] }}"
 </p>
 <p>
     If you're in a voice chat, make annoying noises at them to speed them up.
@@ -18,9 +20,25 @@
 <p>
     Enter an initial prompt to give to somebody else below. This can be absolutely anything!
 </p>
+<p>
+    Perhaps ask for a cool location in their city.
+    Or maybe you want them to find an item? Act out a scene? Represent something
+    abstract?
+</p>
+<p>
+    Try to keep it open-ended, if possible. Let people be creative!
+</p>
 <form action="/submit-prompt/{{ game['join_code'] }}" method="post">
-    <textarea name="prompt" id="prompt" rows="3"></textarea>
+    <textarea name="prompt" id="prompt" rows="3" maxlength="{{ max_prompt_length }}"></textarea>
     <input type="submit" value="Send prompt">
 </form>
+{% endif %}
+{% endblock %}
+
+{% block lobby_controls %}
+{% if participant.has_submitted == 1 %}
+<li class="form">
+    <a href="/unsubmit/{{ game['join_code'] }}">Unsubmit</a>
+</li>
 {% endif %}
 {% endblock %}

@@ -2,15 +2,27 @@ import os
 import random
 import brokencameraphone.lib.db as db
 import brokencameraphone.lib.helpers as helpers
-from PIL import Image
+import brokencameraphone.lib.gamemode as gamemode
+import zipfile
+import tempfile
 import io
+import string
 
-from flask import Flask, session, request, flash, send_from_directory
+from PIL import Image
+from io import BytesIO
+from slugify import slugify
+from datetime import datetime
+
+from flask import Flask, session, request, flash, send_from_directory, abort, send_file
 from flask.helpers import url_for
 from flask.templating import render_template
 from werkzeug.utils import redirect
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "bmp"}
+MAX_IMAGE_SIZE = (2048, 2048)
+MAX_IMAGE_KB = 256
+MAX_PROMPT_LENGTH = 128
+PHOTO_FILENAME_RANDOM_LENGTH = 10
 
 def register_routes(app: Flask):
     @app.get("/game/<joincode>")
@@ -59,8 +71,11 @@ def register_routes(app: Flask):
                 game=game,
                 participant=participant,
                 previous_submission=get_previous_submission(joincode, participant),
+                recent_submission=get_recent_submission(joincode, participant),
                 user_id=session["user_id"],
-                is_owner=game['owner_id'] == session["user_id"]) # type: ignore
+                is_owner=game['owner_id'] == session["user_id"],
+                max_prompt_length=MAX_PROMPT_LENGTH,
+                gamemodes=gamemode.GAMEMODES)
         
     @app.post("/submit-prompt/<joincode>")
     @helpers.logged_in
@@ -75,6 +90,10 @@ def register_routes(app: Flask):
             flash("Your prompt can't be empty.")
             return redirect("/game/" + joincode)
         
+        if len(request.form["prompt"]) > MAX_PROMPT_LENGTH:
+            flash(f"Your prompt is too long! Please limit yourself to {MAX_PROMPT_LENGTH} characters.")
+            return redirect("/game/" + joincode)
+        
         if participant["has_submitted"] > 0:
             flash("You already submitted for this round!")
             return redirect("/game/" + joincode)
@@ -85,15 +104,16 @@ def register_routes(app: Flask):
         
         # submit the prompt
         db.query("""
-                 insert into submissions (user_id, game_id, round, prompt, root_user)
-                 values (?, ?, ?, ?, ?)
+                 insert into submissions (user_id, game_id, round, prompt, root_user, timestamp)
+                 values (?, ?, ?, ?, ?, ?)
                  """,
                  [
                      session["user_id"],
                      game["id"],
                      game["current_round"],
                      request.form["prompt"],
-                     prev["root_user"] # type: ignore
+                     prev["root_user"], # type: ignore
+                     int(datetime.utcnow().timestamp())
                  ],
                  commit=True)
         
@@ -137,24 +157,29 @@ def register_routes(app: Flask):
         allowed, ext = allowed_photo_file(photo.filename)
 
         if photo and allowed:
-            new_filename = f"photo_{joincode}_{participant['user_id']}_{game['current_round']}.{ext}"
+            random_id = "".join(
+                random.choice(string.ascii_uppercase)
+                for i in range(PHOTO_FILENAME_RANDOM_LENGTH))
+            
+            new_filename = f"photo_{joincode}_{participant['user_id']}_{game['current_round']}_{random_id}.jpg"
             path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
-            compress_image_to_size(photo, path)
+            compress_and_save(photo, path, target_size_kb=MAX_IMAGE_KB)
         else:
             flash("This file format is not supported. Please use either PNG, JPEG, BMP, or GIF!")
             return redirect("/game/" + joincode)
         
         # submit the photo
         db.query("""
-                 insert into submissions (user_id, game_id, round, photo_path, root_user)
-                 values (?, ?, ?, ?, ?)
+                 insert into submissions (user_id, game_id, round, photo_path, root_user, timestamp)
+                 values (?, ?, ?, ?, ?, ?)
                  """,
                  [
                      session["user_id"],
                      game["id"],
                      game["current_round"],
                      new_filename,
-                     prev["root_user"] # type: ignore
+                     prev["root_user"], # type: ignore
+                     int(datetime.utcnow().timestamp())
                  ],
                  commit=True)
         
@@ -172,9 +197,69 @@ def register_routes(app: Flask):
 
         return redirect("/game/" + joincode)
     
+    @app.get("/unsubmit/<joincode>")
+    @helpers.logged_in
+    @helpers.with_game("game")
+    @helpers.with_participant("participant")
+    def get_unsubmit(joincode, participant, game):
+        if not participant["has_submitted"]:
+            return redirect("/game/" + joincode)
+        
+        old_submission = get_recent_submission(joincode, participant)
+        if old_submission == None:
+            return redirect("/game/" + joincode)
+
+        db.query(
+        """
+        delete from submissions
+        where id = ?
+        """, [old_submission["id"]], commit=True) # type: ignore
+
+        db.query(
+        """
+        update participants
+        set has_submitted = 0
+        where user_id = ?
+        """, [session["user_id"]], commit=True)
+
+        photo_path = old_submission["photo_path"] # type: ignore
+        if photo_path is not None:
+            real_path = os.path.join(app.config["UPLOAD_FOLDER"], photo_path)
+            os.remove(real_path)
+
+        flash("You've successfully undone your submission.")
+
+        return redirect("/game/" + joincode)
+
     @app.get("/photo/<path>")
     def get_photo(path):
         return send_from_directory(app.config["UPLOAD_FOLDER"], path)
+    
+    @app.get("/api/game/<joincode>")
+    @helpers.logged_in
+    def get_api_games_info(joincode):
+        game = db.query(
+            """
+            select * from games
+            where join_code = ?
+            """, [joincode], one=True)
+        
+        if game == None:
+            return {
+                "exists": False,
+                "info": None
+            }
+
+        return {
+            "exists": True,
+            "info": {
+                "join_code": game["join_code"], # type: ignore
+                "current_round": game["current_round"], # type: ignore
+                "max_rounds": game["max_rounds"], # type: ignore
+                "current_showing_user": game["current_showing_user"], # type: ignore
+                "state": game["state"] # type: ignore
+            }
+        }
     
     @app.get("/api/gallery/view/<joincode>")
     @helpers.logged_in
@@ -183,7 +268,8 @@ def register_routes(app: Flask):
     def get_api_gallery_view(joincode, game, participant):
         submissions = db.query(
             """
-            select round, photo_path, prompt, display_name, root_user from submissions
+            select round, photo_path, prompt, display_name, root_user, timestamp 
+            from submissions
             inner join games on games.id = submissions.game_id
             inner join users on users.id = submissions.user_id
             where games.current_showing_user = submissions.root_user and submissions.revealed and games.join_code = ?
@@ -202,7 +288,8 @@ def register_routes(app: Flask):
                 "round": s["round"],
                 "photo_path": s["photo_path"],
                 "prompt": s["prompt"],
-                "display_name": s["display_name"]
+                "display_name": s["display_name"],
+                "timestamp": s["timestamp"]
             } for s in submissions ],
             "current_showing_user": game["current_showing_user"],
             "amount": len(submissions)
@@ -249,6 +336,47 @@ def register_routes(app: Flask):
         return {
             "ok": True
         }
+    
+    @app.get("/api/gallery/download/<joincode>")
+    @helpers.logged_in
+    @helpers.with_game("game")
+    @helpers.with_participant("participant")
+    def get_api_gallery_download(joincode, game, participant):
+        if game["state"] != 4:
+            flash("You can't download the gallery until the game has finished!")
+            return redirect("/game/" + joincode)
+
+        file_name = f"WCP-gallery-{joincode}.zip"
+        mem_file = BytesIO()
+
+        chains = get_chains(game["id"])
+        if chains == None:
+            flash("Invalid game ID")
+            return redirect("/game/" + joincode)
+
+        with zipfile.ZipFile(mem_file, "w", zipfile.ZIP_DEFLATED) as f:
+            for root_user, chain in chains.items():
+                root_name = slugify(user_display_name(root_user)) # type: ignore
+
+                for sub in chain:
+                    path_start = os.path.join(
+                        root_name,
+                        f"{sub['round']}-{slugify(sub['user_name'])}")
+
+                    if sub["photo_path"] is not None:
+                        # got a photo; write it directly
+                        _, ext = allowed_photo_file(sub["photo_path"])
+
+                        f.write(
+                            os.path.join(app.config["UPLOAD_FOLDER"], sub["photo_path"]),
+                            arcname=f"{path_start}-photo.{ext}")
+                    else:
+                        # got a prompt; make a text file to put it in
+                        f.writestr(f"{path_start}-prompt.txt", sub["prompt"])
+
+        mem_file.seek(0)
+
+        return send_file(mem_file, download_name=file_name, as_attachment=True)
 
     @app.get("/set-archived/<joincode>/<val>")
     @helpers.logged_in
@@ -266,15 +394,51 @@ def register_routes(app: Flask):
             where user_id = ? and game_id = ?
                      """, [session["user_id"], game["id"]], commit=True)
         
-        return redirect("/game/" + joincode)
+        return redirect("/")
 
-def compress_image_to_size(input_path, output_path, target_size_mb=3):
-    target_size_bytes = target_size_mb * (1024**2)
+def get_chains(game_id):
+    all_submissions = db.query(
+        """
+        select submissions.*, users.display_name as "user_name" from submissions
+        inner join users on submissions.user_id = users.id
+        where game_id = ?
+        """, [game_id])
+
+    if all_submissions == None:
+        return None
+    
+    chains = {}
+
+    for sub in all_submissions:
+        if sub["root_user"] not in chains:
+            chains[sub["root_user"]] = []
+        
+        chains[sub["root_user"]].append(sub)
+    
+    return chains
+
+def user_display_name(user_id):
+    name = db.query(
+        """
+        select display_name
+        from users
+        where id = ?
+        """, [user_id], one=True)
+
+    if name == None:
+        return None
+
+    return name["display_name"] # type: ignore
+
+def compress_and_save(input_path, output_path, target_size_kb=96):
+    target_size_bytes = target_size_kb * 1024
     quality = 95  # Starting quality for compression
 
     with Image.open(input_path) as img:
         if img.mode in ("RGBA", "P"):
             img = img.convert("RGB")
+        
+        img.thumbnail(MAX_IMAGE_SIZE)
 
         while True:
             img_io = io.BytesIO()
@@ -400,5 +564,18 @@ def get_previous_submission(joincode, participant):
     inner join chain_links as l on l.round = g.current_round and l.to_id = ? and l.from_id = s.user_id and l.game_id = g.id
     where g.join_code = ? and s.round = (g.current_round - 1)
     """, [participant["user_id"], joincode], one=True)
+
+    return submission
+
+# gets the prompt (or photo prompt) which a player recently submitted themselves 
+def get_recent_submission(joincode, participant):
+    submission = db.query(
+        """
+        select * from submissions
+        inner join games on game_id = games.id
+        where games.join_code = ?
+            and user_id = ?
+            and round = games.current_round
+        """, [joincode, participant["user_id"]], one=True)
 
     return submission
