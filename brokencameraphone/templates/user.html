@@ -5,7 +5,7 @@
 {% block content %}
 
 {% if own_profile %}
-<p>Welcome to your profile {{ name }}! Here you can view and change your settings and preferences.</p>
+<p>Welcome to your profile {{ name }}! Here you can view and change your settings and preferences. Or <a href="/logout">Log out</a>.</p>
 
 <div class="split equal">
     <div class="forms wide">
@@ -106,10 +106,10 @@
 <p>Welcome to {{name}}'s profile!</p>
 {% endif %}
 
-{% if user_id %}
+<!-- {% if user_id %}
 <div class="grid">
     <p><a href="/logout">Log out</a> PLACEHOLDER <a href="#">Delete my personal data</a> PLACEHOLDER <a href="#">Download my data</a> PLACEHOLDER <a href="#">Delete my account</a></p>
 </div>
-{% endif %}
+{% endif %} -->
 
 {% endblock %}
