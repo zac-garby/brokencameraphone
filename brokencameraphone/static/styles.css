@@ -333,7 +333,7 @@ ul.flashes li, div#error {
     width: 100%;
     padding: 16px;
     border-radius: 10px;
-   
+
     -ms-word-break: break-all;
     -ms-word-wrap: break-all;
     -webkit-word-break: break-word;
@@ -427,7 +427,6 @@ ul#submissions h3.username {
 ul#submissions a {
     display: block;
     width: 100%;
-    max-height: 400px;
     overflow-y: hidden;
 }
 
