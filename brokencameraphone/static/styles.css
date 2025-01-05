@@ -358,6 +358,13 @@ ul#players {
     gap: 8px;
 }
 
+ul#players li {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 ul#players li.submitted {
     text-decoration: line-through;
     color: #9f8989;

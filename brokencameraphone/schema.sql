@@ -5,7 +5,7 @@ CREATE TABLE users (
     display_name TEXT COLLATE NOCASE NOT NULL,
     password CHAR(60) NOT NULL,
     has_confirmed_email INTEGER DEFAULT 0 NOT NULL,
-    email_confirmation_code TEXT UNIQUE,
+    email_confirmation_code TEXT,
     reset_password_code TEXT,
     last_email_timestamp INTEGER,
     email_expire_time INTEGER DEFAULT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE participants (
 DROP TABLE IF EXISTS submissions;
 CREATE TABLE submissions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    
+
     user_id INTEGER NOT NULL,
     game_id INTEGER NOT NULL,
 
