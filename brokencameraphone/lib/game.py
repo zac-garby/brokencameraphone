@@ -440,7 +440,8 @@ def compress_and_save(input_path, output_path, target_size_kb=1024):
     quality = 90  # Starting quality for compression
 
     with Image.open(input_path) as img:
-        img = ImageOps.exif_transpose(img
+        ImageOps.exif_transpose(img, in_place=True)
+
         while True:
             frames = []
             for frame in ImageSequence.Iterator(img):
