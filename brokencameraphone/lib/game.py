@@ -8,7 +8,7 @@ import tempfile
 import io
 import string
 
-from PIL import Image, ImageSequence
+from PIL import Image, ImageSequence, ImageOps
 from io import BytesIO
 from slugify import slugify
 from datetime import datetime
@@ -440,6 +440,7 @@ def compress_and_save(input_path, output_path, target_size_kb=1024):
     quality = 90  # Starting quality for compression
 
     with Image.open(input_path) as img:
+        img = ImageOps.exif_transpose(img
         while True:
             frames = []
             for frame in ImageSequence.Iterator(img):
