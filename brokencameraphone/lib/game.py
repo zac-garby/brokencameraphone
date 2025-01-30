@@ -163,7 +163,6 @@ def register_routes(app: Flask):
 
             new_filename = f"photo_{joincode}_{participant['user_id']}_{game['current_round']}_{random_id}.webp"
             path = os.path.join(app.config["UPLOAD_FOLDER"], new_filename)
-            print(path)
             success = compress_and_save(photo, path, target_size_kb=MAX_IMAGE_KB)
 
             if not success:
@@ -448,6 +447,10 @@ def compress_and_save(input_path, output_path, target_size_kb=1024):
                 new_frame = frame.copy()
                 new_frame.thumbnail(MAX_IMAGE_SIZE)
                 frames.append(new_frame)
+
+            if img.format == "MPO":
+                # this is probably a live photo. just take the first frame
+                frames = frames[:1]
 
             img_io = io.BytesIO()
             frames[0].save(

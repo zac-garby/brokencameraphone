@@ -287,6 +287,8 @@ def register_routes(app: Flask):
     @app.post("/user/update_password")
     def update_password_post():
         fail = False
+        new_passwd = None
+
         if (curr_passwd := request.form.get("current_passwd", default="")) == "":
             flash("You must enter you current password.")
             fail = True
@@ -302,6 +304,8 @@ def register_routes(app: Flask):
         elif curr_passwd == new_passwd:
             flash("Your current password matches your new one.")
             fail = True
+
+        assert new_passwd
 
         if not fail:
             if (pass_error := check_password(new_passwd)) is None: # Does the password meet the requirements?
