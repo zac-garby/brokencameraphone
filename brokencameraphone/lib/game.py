@@ -4,7 +4,6 @@ import brokencameraphone.lib.db as db
 import brokencameraphone.lib.helpers as helpers
 import brokencameraphone.lib.gamemode as gamemode
 import zipfile
-import tempfile
 import io
 import string
 
@@ -17,6 +16,7 @@ from flask import Flask, session, request, flash, send_from_directory, abort, se
 from flask.helpers import url_for
 from flask.templating import render_template
 from werkzeug.utils import redirect
+from brokencameraphone.lib.discord import sendDiscNotif
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "bmp"}
 MAX_IMAGE_SIZE = (2048, 2048)
@@ -66,6 +66,15 @@ def register_routes(app: Flask):
                 4: "game-over.html"
             }[state]
 
+            # Fetch the users webhooks (if any)
+            wh = db.query(
+                    """
+                    select display_name, webhook from webhooks
+                    where user_id = ?
+                    """, [session["user_id"]])
+
+            user_webhook = [(x["display_name"], x["webhook"], x["display_name"].replace(" ", "")) for x in wh] # type: ignore
+
             return render_template(
                 template,
                 game=game,
@@ -75,7 +84,9 @@ def register_routes(app: Flask):
                 user_id=session["user_id"],
                 is_owner=game['owner_id'] == session["user_id"],
                 max_prompt_length=MAX_PROMPT_LENGTH,
-                gamemodes=gamemode.GAMEMODES)
+                gamemodes=gamemode.GAMEMODES,
+                webhooks = user_webhook,
+                webhook_count = len(user_webhook))
 
     @app.post("/submit-prompt/<joincode>")
     @helpers.logged_in
@@ -261,7 +272,8 @@ def register_routes(app: Flask):
                 "current_round": game["current_round"], # type: ignore
                 "max_rounds": game["max_rounds"], # type: ignore
                 "current_showing_user": game["current_showing_user"], # type: ignore
-                "state": game["state"] # type: ignore
+                "state": game["state"], # type: ignore
+                "discord_webhook": game["discord_webhook"] # type: ignore
             }
         }
 
@@ -501,6 +513,13 @@ def advance_round(joincode, game):
         # if exceeded max round, game is over
         new_state = 4
 
+        if (wh := game["discord_webhook"]) is not None:
+            sendDiscNotif(endpoint=wh, subject="Game over!", game=joincode, desc=f"""
+            The game **{joincode}** has just concluded :partying_face:
+
+            The game master can now share the results [here](https://whisperingcameraphone/game/{joincode}).
+            """)
+
         # also, reveal the first prompt of each thread
         db.query(
             """
@@ -508,13 +527,31 @@ def advance_round(joincode, game):
             set revealed = 1
             where round = 0 and game_id = ?
             """, [game["id"]], commit=True)
+        
     elif game["state"] in [1, 3]:
         # if was doing prompts, change to photos
         assign_chain_links(joincode, game["current_round"] + 1, game["id"])
+
+        if (wh := game["discord_webhook"]) is not None:
+            print(wh)
+            sendDiscNotif(endpoint=wh, subject="New photo round", game=joincode, desc=f"""
+            A new photo round has begun for game **{joincode}**.
+                      
+            Check out the new prompts [here](https://whisperingcameraphone/game/{joincode}).
+            """)
         new_state = 2
+
     else:
         # otherwise, change to prompts
         assign_chain_links(joincode, game["current_round"] + 1, game["id"])
+
+        if (wh := game["discord_webhook"]) is not None:
+            print(wh)
+            sendDiscNotif(endpoint=wh, subject="New prompts", game=joincode, desc=f"""
+            A new prompt round has started for game **{joincode}**.
+
+            Start writing a new prompt [here](https://whisperingcameraphone/game/{joincode}).
+            """)
         new_state = 3
 
     db.query(

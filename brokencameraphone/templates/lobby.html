@@ -60,6 +60,15 @@
             </div>
             {% endfor %}
         </div>
+        <div class="forms wide">
+            <p class="inset">Here you can select a <a href="https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks">Discord webhooks</a> to send notifications to. If you do not have any, you can set one up <a href="/user">here</a>.</p>
+            <select name="webhook_selector" id="webhook_selector">
+                <option value="none">None</option>
+                {% for i in range(0, webhook_count) %}
+                    <option value="{{ webhooks[i][1] }}">{{ webhooks[i][0] }}</option>
+                {% endfor %}
+            </select>
+        </div>
         <input type="submit" class="button" value="Start Game">
     </form>
 </li>

@@ -45,9 +45,8 @@
             <h2>Webhooks</h2>
             <p class="inset">
                 You can set up
-                <a href="https://discord.com/developers/docs/resources/webhook">Discord webhooks</a>
-                to notify you and your friends when a new round has begun in
-                your Whispering Cameraphone games.
+                <a href="https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks">Discord webhooks</a>
+                to notify you and your friends when a new round has begun in your Whispering Cameraphone games via Discord.
             </p>
             <select onchange="changeSelector()" name="webhook_selector" id="webhook_selector">
                 <option disabled selected> -- select an option -- </option>
@@ -57,13 +56,12 @@
                 {% endfor %}
             </select>
             <p class="inset">
-                The friendly name can be anything and is just to help you
-                identify it amongst the others.
+                The friendly name can be anything and is just to help you identify it amongst the others. Alphanumeric characters only.
             </p>
             <input type="text" name="friendly_name" id="friendly_name" pattern="[a-zA-Z0-9\s]+" placeholder="Friendly name" required>
             <p class="inset">
-                You'll need a webhook URL. In a server in which you have
-                the correct permissions, follow <a href="https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks">these instructions</a>
+                You'll need a webhook URL. In a server in which you have the correct permissions, 
+                follow <a href="https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks">these instructions</a>
                 to create a webhook, and paste the URL below.
             </p>
             <input type="text" name="webhook_name" id="webhook_name" placeholder="Webhook URL" required>
@@ -106,10 +104,10 @@
 <p>Welcome to {{name}}'s profile!</p>
 {% endif %}
 
-<!-- {% if user_id %}
+{% if user_id %}
 <div class="grid">
-    <p><a href="/logout">Log out</a> PLACEHOLDER <a href="#">Delete my personal data</a> PLACEHOLDER <a href="#">Download my data</a> PLACEHOLDER <a href="#">Delete my account</a></p>
+    <p><a href="/logout">Log out</a></p>
 </div>
-{% endif %} -->
+{% endif %}
 
 {% endblock %}
