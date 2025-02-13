@@ -5,7 +5,7 @@ import brokencameraphone.lib.gamemode as gamemode
 import random
 import re
 
-from brokencameraphone.lib.discord import sendDiscNotif
+from brokencameraphone.lib.discord import send_disc_notif
 from flask import Flask, session, request, flash
 from flask.helpers import url_for
 from flask.templating import render_template
@@ -101,7 +101,7 @@ def register_routes(app: Flask):
             A new game **{joincode}** has started!
 
             Click [here](https://whisperingcameraphone/game/{joincode}) to start sending those prompts!"""
-            sendDiscNotif(endpoint=webhook, subject="New game started", desc=new_game_desc, game=joincode)
+            send_disc_notif(endpoint=webhook, subject="New game started", desc=new_game_desc, game=joincode)
         else:
             webhook = None
 

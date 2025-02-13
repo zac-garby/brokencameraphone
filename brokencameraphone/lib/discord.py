@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime, timezone
 
-def sendDiscNotif(endpoint: str, subject: str, desc: str, game: str, time = None):
+def send_disc_notif(endpoint: str, subject: str, desc: str, game: str, time = None):
     """
     This will send a notification to a Discord webhook endpoint.
 

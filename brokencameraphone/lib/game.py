@@ -16,7 +16,7 @@ from flask import Flask, session, request, flash, send_from_directory, abort, se
 from flask.helpers import url_for
 from flask.templating import render_template
 from werkzeug.utils import redirect
-from brokencameraphone.lib.discord import sendDiscNotif
+from brokencameraphone.lib.discord import send_disc_notif
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "bmp"}
 MAX_IMAGE_SIZE = (2048, 2048)
@@ -514,7 +514,7 @@ def advance_round(joincode, game):
         new_state = 4
 
         if (wh := game["discord_webhook"]) is not None:
-            sendDiscNotif(endpoint=wh, subject="Game over!", game=joincode, desc=f"""
+            send_disc_notif(endpoint=wh, subject="Game over!", game=joincode, desc=f"""
             The game **{joincode}** has just concluded :partying_face:
 
             The game master can now share the results [here](https://whisperingcameraphone/game/{joincode}).
@@ -534,7 +534,7 @@ def advance_round(joincode, game):
 
         if (wh := game["discord_webhook"]) is not None:
             print(wh)
-            sendDiscNotif(endpoint=wh, subject="New photo round", game=joincode, desc=f"""
+            send_disc_notif(endpoint=wh, subject="New photo round", game=joincode, desc=f"""
             A new photo round has begun for game **{joincode}**.
                       
             Check out the new prompts [here](https://whisperingcameraphone/game/{joincode}).
@@ -547,7 +547,7 @@ def advance_round(joincode, game):
 
         if (wh := game["discord_webhook"]) is not None:
             print(wh)
-            sendDiscNotif(endpoint=wh, subject="New prompts", game=joincode, desc=f"""
+            send_disc_notif(endpoint=wh, subject="New prompts", game=joincode, desc=f"""
             A new prompt round has started for game **{joincode}**.
 
             Start writing a new prompt [here](https://whisperingcameraphone/game/{joincode}).
