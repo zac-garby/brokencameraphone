@@ -100,7 +100,7 @@ def register_routes(app: Flask):
             new_game_desc = f"""
             A new game **{joincode}** has started!
 
-            Click [here](https://whisperingcameraphone/game/{joincode}) to start sending those prompts!"""
+            Click [here](https://whisperingcameraphone.com/game/{joincode}) to start sending those prompts!"""
             send_disc_notif(endpoint=webhook, subject="New game started", desc=new_game_desc, game=joincode)
         else:
             webhook = None

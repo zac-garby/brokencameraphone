@@ -517,7 +517,7 @@ def advance_round(joincode, game):
             send_disc_notif(endpoint=wh, subject="Game over!", game=joincode, desc=f"""
             The game **{joincode}** has just concluded :partying_face:
 
-            The game master can now share the results [here](https://whisperingcameraphone/game/{joincode}).
+            The game master can now share the results [here](https://whisperingcameraphone.com/game/{joincode}).
             """)
 
         # also, reveal the first prompt of each thread
@@ -537,7 +537,7 @@ def advance_round(joincode, game):
             send_disc_notif(endpoint=wh, subject="New photo round", game=joincode, desc=f"""
             A new photo round has begun for game **{joincode}**.
                       
-            Check out the new prompts [here](https://whisperingcameraphone/game/{joincode}).
+            Check out the new prompts [here](https://whisperingcameraphone.com/game/{joincode}).
             """)
         new_state = 2
 
@@ -550,7 +550,7 @@ def advance_round(joincode, game):
             send_disc_notif(endpoint=wh, subject="New prompts", game=joincode, desc=f"""
             A new prompt round has started for game **{joincode}**.
 
-            Start writing a new prompt [here](https://whisperingcameraphone/game/{joincode}).
+            Start writing a new prompt [here](https://whisperingcameraphone.com/game/{joincode}).
             """)
         new_state = 3
 
