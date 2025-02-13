@@ -5,7 +5,6 @@ import brokencameraphone.lib.helpers as helpers
 import bcrypt
 import uuid
 import re
-import time
 import string
 
 from flask import Flask, session, request, flash, current_app, abort
@@ -516,12 +515,14 @@ def check_webhook_submission(webhook: str, friendly: str, update: bool = False):
 
     pattern = r'[^a-zA-Z0-9\s]'
 
+    # Does the user have this webhook name already?
     check_friendly = db.query(
         """
         select * from webhooks
         where user_id = ? and display_name = ?
         """,  [session["user_id"], friendly], one = True)
 
+    # Does the user have this webhook URL already?
     check_webhook = db.query(
         """
         select * from webhooks
